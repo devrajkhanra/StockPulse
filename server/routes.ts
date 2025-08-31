@@ -42,7 +42,7 @@ async function extractOptionsFile(zipFilePath: string, targetDir: string, date: 
   const formattedDate = formatDateForUrl(date, 'ddmmyyyy');
   const targetFileName = `op${formattedDate}.csv`;
   
-  const entry = entries.find(e => e.entryName.toLowerCase().includes('op') && e.entryName.endsWith('.csv'));
+  const entry = entries.find((e: any) => e.entryName.toLowerCase().includes('op') && e.entryName.endsWith('.csv'));
   if (!entry) {
     throw new Error(`Options file ${targetFileName} not found in ZIP archive`);
   }
@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
 
             completedFiles++;
-            const progress = Math.round((completedFiles / job.totalFiles) * 100);
+            const progress = Math.round((completedFiles / (job.totalFiles || 1)) * 100);
             await storage.updateDownloadJob(jobId, { 
               completedFiles, 
               progress 
@@ -233,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               let finalFileName = fileName;
 
               // Handle ZIP extraction for options
-              if (config.isZip) {
+              if ('isZip' in config && config.isZip) {
                 finalPath = await extractOptionsFile(filePath, targetDir, date);
                 finalFileName = path.basename(finalPath);
               }
@@ -249,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
 
               completedFiles++;
-              const progress = Math.round((completedFiles / job.totalFiles) * 100);
+              const progress = Math.round((completedFiles / (job.totalFiles || 1)) * 100);
               await storage.updateDownloadJob(jobId, { 
                 completedFiles, 
                 progress 

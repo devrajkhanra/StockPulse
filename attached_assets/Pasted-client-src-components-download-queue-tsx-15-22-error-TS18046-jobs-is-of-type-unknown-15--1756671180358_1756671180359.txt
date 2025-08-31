@@ -1,0 +1,177 @@
+client/src/components/download-queue.tsx:15:22 - error TS18046: 'jobs' is of type 'unknown'.
+
+15   const activeJobs = jobs.filter((job: any) =>
+                        ~~~~
+
+client/src/components/download-queue.tsx:19:25 - error TS18046: 'jobs' is of type 'unknown'.
+
+19   const completedJobs = jobs.filter((job: any) =>
+                           ~~~~
+
+client/src/components/download-queue.tsx:61:39 - error TS18046: 'jobs' is of type 'unknown'.
+
+61             {completedJobs.length} / {jobs.length}
+                                         ~~~~
+
+client/src/components/recent-downloads-table.tsx:88:12 - error TS18046: 'files' is of type 'unknown'.
+
+88           {files.length === 0 ? (
+              ~~~~~
+
+client/src/components/recent-downloads-table.tsx:106:20 - error TS18046: 'files' is of type 'unknown'.
+
+106                   {files.map((file: any) => (
+                       ~~~~~
+
+client/src/components/recent-downloads-table.tsx:128:60 - error TS2304: Cannot find name 'CheckCircle'.
+
+128                           {file.status === 'completed' && <CheckCircle className="mr-1 h-3 w-3" />}
+                                                               ~~~~~~~~~~~
+
+client/src/components/status-panel.tsx:73:25 - error TS2339: Property 'totalFiles' does not exist on type '{}'.
+
+73                 {stats?.totalFiles || 0}
+                           ~~~~~~~~~~
+
+client/src/components/status-panel.tsx:79:47 - error TS2339: Property 'totalSize' does not exist on type '{}'.
+
+79                 {stats ? formatFileSize(stats.totalSize) : '0 MB'}
+                                                 ~~~~~~~~~
+
+client/src/components/status-panel.tsx:98:25 - error TS2339: Property 'activeUsers' does not exist on type '{}'.
+
+98                 {stats?.activeUsers?.toLocaleString() || '0'}
+                           ~~~~~~~~~~~
+
+client/src/lib/nse-api.ts:112:7 - error TS2322: Type 'string' is not assignable to type '"https://archives.nseindia.com/content/indices/ind_nifty50list.csv" | "https://archives.nseindia.com/content/indices/ind_close_all_{date}.csv" | "https://archives.nseindia.com/products/content/sec_bhavdata_full_{date}.csv" | "https://archives.nseindia.com/archives/equities/mkt/MA{date}.csv" | "https://archives.nsein...'.
+
+112       url = url.replace('{date}', formattedDate);
+          ~~~
+
+client/src/lib/nse-api.ts:132:18 - error TS2339: Property 'isZip' does not exist on type '{ readonly name: "Nifty 50 List"; readonly folder: "broad"; readonly url: "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"; readonly requiresDate: false; } | { ...; } | { ...; } | { ...; } | { ...; }'.
+  Property 'isZip' does not exist on type '{ readonly name: "Nifty 50 List"; readonly folder: "broad"; readonly url: "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"; readonly requiresDate: false; }'.
+
+132       if (config.isZip) {
+                     ~~~~~
+
+server/routes.ts:12:20 - error TS7016: Could not find a declaration file for module 'adm-zip'. 'C:/Users/khanr/Downloads/StockPulse/StockPulse/node_modules/adm-zip/adm-zip.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/adm-zip` if it exists or add a new declaration (.d.ts) file containing `declare module 'adm-zip';`   
+
+12 import AdmZip from "adm-zip";
+                      ~~~~~~~~~
+
+server/routes.ts:45:30 - error TS7006: Parameter 'e' implicitly has an 'any' type.
+
+45   const entry = entries.find(e => e.entryName.toLowerCase().includes('op') && e.entryName.endsWith('.csv'));
+                                ~
+
+server/routes.ts:121:9 - error TS2353: Object literal may only specify known properties, and 'totalFiles' does not exist in type '{ jobType: "range" | "single"; startDate: string; dataSources: ("options" | "nifty50" | "indices" | "stocks" | "marketActivity")[]; endDate?: string | undefined; }'.
+
+121         totalFiles,
+            ~~~~~~~~~~
+
+server/routes.ts:198:59 - error TS18047: 'job.totalFiles' is possibly 'null'.
+
+198             const progress = Math.round((completedFiles / job.totalFiles) * 100);
+                                                              ~~~~~~~~~~~~~~
+
+server/routes.ts:215:17 - error TS2322: Type 'string' is not assignable to type '"https://archives.nseindia.com/content/indices/ind_nifty50list.csv" | "https://archives.nseindia.com/content/indices/ind_close_all_{date}.csv" | "https://archives.nseindia.com/products/content/sec_bhavdata_full_{date}.csv" | "https://archives.nseindia.com/archives/equities/mkt/MA{date}.csv" | "https://archives.nsein...'.
+
+215                 url = url.replace('{date}', formattedDate);
+                    ~~~
+
+server/routes.ts:219:17 - error TS2322: Type 'string' is not assignable to type '"https://archives.nseindia.com/content/indices/ind_nifty50list.csv" | "https://archives.nseindia.com/content/indices/ind_close_all_{date}.csv" | "https://archives.nseindia.com/products/content/sec_bhavdata_full_{date}.csv" | "https://archives.nseindia.com/archives/equities/mkt/MA{date}.csv" | "https://archives.nsein...'.
+
+219                 url = url.replace('{date}', formattedDate);
+                    ~~~
+
+server/routes.ts:223:17 - error TS2322: Type 'string' is not assignable to type '"https://archives.nseindia.com/content/indices/ind_nifty50list.csv" | "https://archives.nseindia.com/content/indices/ind_close_all_{date}.csv" | "https://archives.nseindia.com/products/content/sec_bhavdata_full_{date}.csv" | "https://archives.nseindia.com/archives/equities/mkt/MA{date}.csv" | "https://archives.nsein...'.
+
+223                 url = url.replace('{date}', formattedDate);
+                    ~~~
+
+server/routes.ts:236:26 - error TS2339: Property 'isZip' does not exist on type '{ readonly name: "Nifty 50 List"; readonly folder: "broad"; readonly url: "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"; readonly requiresDate: false; } | { ...; } | { ...; } | { ...; } | { ...; }'.
+  Property 'isZip' does not exist on type '{ readonly name: "Nifty 50 List"; readonly folder: "broad"; readonly url: "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"; readonly requiresDate: false; }'.
+
+236               if (config.isZip) {
+                             ~~~~~
+
+server/routes.ts:252:61 - error TS18047: 'job.totalFiles' is possibly 'null'.
+
+252               const progress = Math.round((completedFiles / job.totalFiles) * 100);
+                                                                ~~~~~~~~~~~~~~
+
+server/storage.ts:66:11 - error TS2322: Type '{ jobType: "range" | "single"; startDate: string; dataSources: ("options" | "nifty50" | "indices" | "stocks" | "marketActivity")[]; endDate?: string | undefined; id: `${string}-${string}-${string}-${string}-${string}`; ... 7 more ...; updatedAt: Date; }' is not assignable to type '{ progress: number | null; id: string; status: string; userId: string | null; jobType: string; startDate: string; endDate: string | null; dataSources: string[]; totalFiles: number | null; completedFiles: number | null; errorMessage: string | null; createdAt: Date | null; updatedAt: Date | null; }'.
+  Types of property 'endDate' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+
+66     const job: DownloadJob = {
+             ~~~
+
+server/storage.ts:104:32 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+
+104       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                                   ~~~~~~~~~~~
+
+
+server/storage.ts:104:66 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+
+104       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                                                                     ~~~~~~~~~~~
+
+
+server/storage.ts:109:11 - error TS2322: Type '{ fileName: string; fileType: string; filePath: string; downloadDate: string; status: string; jobId?: string | null | undefined; fileSize?: number | null | undefined; id: `${string}-${string}-${string}-${string}-${string}`; createdAt: Date; }' is not assignable to type '{ id: string; status: string; createdAt: Date | null; jobId: string | null; fileName: string; fileType: string; filePath: string; fileSize: number | null; downloadDate: string; }'.
+  Types of property 'jobId' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+
+109     const file: DownloadedFile = {
+              ~~~~
+
+server/storage.ts:127:32 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+
+127       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                                   ~~~~~~~~~~~
+
+
+server/storage.ts:127:66 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+
+127       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                                                                     ~~~~~~~~~~~
+
+
+
+Found 26 errors in 6 files.
+
+Errors  Files
+     3  client/src/components/download-queue.tsx:15
+     3  client/src/components/recent-downloads-table.tsx:88
+     3  client/src/components/status-panel.tsx:73
+     2  client/src/lib/nse-api.ts:112
+     9  server/routes.ts:12
+     6  server/storage.ts:66

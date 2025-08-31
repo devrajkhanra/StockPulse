@@ -1,4 +1,4 @@
-import { History, ExternalLink, RotateCcw, Info } from "lucide-react";
+import { History, ExternalLink, RotateCcw, Info, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query";
 
 export default function RecentDownloadsTable() {
-  const { data: files = [] } = useQuery({
+  const { data: files = [] } = useQuery<any[]>({
     queryKey: ['/api/downloaded-files'],
     refetchInterval: 10000, // Refresh every 10 seconds
   });

@@ -57,11 +57,13 @@ export const insertDownloadJobSchema = createInsertSchema(downloadJobs).pick({
   startDate: true,
   endDate: true,
   dataSources: true,
+  totalFiles: true,
 }).extend({
   jobType: z.enum(['single', 'range']),
   startDate: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Date must be in DD/MM/YYYY format"),
   endDate: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Date must be in DD/MM/YYYY format").optional(),
   dataSources: z.array(z.enum(['nifty50', 'indices', 'stocks', 'marketActivity', 'options'])).min(1, "At least one data source must be selected"),
+  totalFiles: z.number().optional(),
 });
 
 export const insertDownloadedFileSchema = createInsertSchema(downloadedFiles).pick({
@@ -119,4 +121,4 @@ export const DATA_SOURCE_CONFIG = {
     requiresDate: true,
     isZip: true,
   },
-} as const;
+};

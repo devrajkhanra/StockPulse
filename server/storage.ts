@@ -74,6 +74,7 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
       updatedAt: new Date(),
       ...insertJob,
+      endDate: insertJob.endDate || null,
     };
     this.downloadJobs.set(id, job);
     return job;
@@ -101,7 +102,7 @@ export class MemStorage implements IStorage {
   async getUserDownloadJobs(userId?: string): Promise<DownloadJob[]> {
     return Array.from(this.downloadJobs.values())
       .filter(job => !userId || job.userId === userId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .sort((a, b) => (new Date(b.createdAt || new Date())).getTime() - (new Date(a.createdAt || new Date())).getTime());
   }
 
   async createDownloadedFile(insertFile: InsertDownloadedFile): Promise<DownloadedFile> {
@@ -111,6 +112,8 @@ export class MemStorage implements IStorage {
       status: "completed",
       createdAt: new Date(),
       ...insertFile,
+      jobId: insertFile.jobId || null,
+      fileSize: insertFile.fileSize || null,
     };
     this.downloadedFiles.set(id, file);
     return file;
@@ -124,7 +127,7 @@ export class MemStorage implements IStorage {
 
   async getRecentDownloadedFiles(limit: number = 10): Promise<DownloadedFile[]> {
     return Array.from(this.downloadedFiles.values())
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort((a, b) => (new Date(b.createdAt || new Date())).getTime() - (new Date(a.createdAt || new Date())).getTime())
       .slice(0, limit);
   }
 

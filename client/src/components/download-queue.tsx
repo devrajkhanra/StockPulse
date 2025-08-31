@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export default function DownloadQueue() {
-  const { data: jobs = [] } = useQuery({
+  const { data: jobs = [] } = useQuery<any[]>({
     queryKey: ['/api/download-jobs'],
     refetchInterval: 2000, // Refresh every 2 seconds for real-time updates
   });

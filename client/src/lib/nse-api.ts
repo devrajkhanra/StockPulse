@@ -129,7 +129,7 @@ export class NSEDataDownloader {
       await this.simulateDownload(url, filePath);
 
       // Handle ZIP extraction for options data
-      if (config.isZip) {
+      if ('isZip' in config && config.isZip) {
         await this.simulateZipExtraction(filePath, date);
       }
 

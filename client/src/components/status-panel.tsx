@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 
 export default function StatusPanel() {
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<any>({
     queryKey: ['/api/stats'],
     refetchInterval: 5000, // Refresh every 5 seconds
   });
