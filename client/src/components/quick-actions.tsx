@@ -68,7 +68,7 @@ export default function QuickActions() {
   };
 
   return (
-    <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
       <Button
         variant="ghost"
         onClick={handleDownloadToday}
@@ -77,14 +77,14 @@ export default function QuickActions() {
         className="h-auto p-0"
       >
         <Card className="w-full border border-border hover:bg-muted/50 transition-colors group">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-primary/10 text-primary p-3 rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <CalendarDays className="h-6 w-6" />
+              <div className="bg-primary/10 text-primary p-2.5 rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <CalendarDays className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <h3 className="font-medium text-card-foreground">Download Today's Data</h3>
-                <p className="text-sm text-muted-foreground mt-1">Get all available data for today</p>
+                <h3 className="font-medium text-card-foreground font-sans text-sm">Download Today's Data</h3>
+                <p className="text-xs text-muted-foreground mt-1 font-sans">Get all available data for today</p>
               </div>
             </div>
           </CardContent>
@@ -99,14 +99,14 @@ export default function QuickActions() {
         className="h-auto p-0"
       >
         <Card className="w-full border border-border hover:bg-muted/50 transition-colors group">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-accent/10 text-accent p-3 rounded-lg group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
-                <Calendar className="h-6 w-6" />
+              <div className="bg-accent/10 text-accent p-2.5 rounded-lg group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
+                <Calendar className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <h3 className="font-medium text-card-foreground">Download This Week</h3>
-                <p className="text-sm text-muted-foreground mt-1">Get all data for current week</p>
+                <h3 className="font-medium text-card-foreground font-sans text-sm">Download This Week</h3>
+                <p className="text-xs text-muted-foreground mt-1 font-sans">Get all data for current week</p>
               </div>
             </div>
           </CardContent>
@@ -120,14 +120,14 @@ export default function QuickActions() {
         className="h-auto p-0"
       >
         <Card className="w-full border border-border hover:bg-muted/50 transition-colors group">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-secondary text-secondary-foreground p-3 rounded-lg group-hover:bg-muted-foreground group-hover:text-background transition-colors">
-                <Settings className="h-6 w-6" />
+              <div className="bg-secondary text-secondary-foreground p-2.5 rounded-lg group-hover:bg-muted-foreground group-hover:text-background transition-colors">
+                <Settings className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <h3 className="font-medium text-card-foreground">Settings</h3>
-                <p className="text-sm text-muted-foreground mt-1">Configure download preferences</p>
+                <h3 className="font-medium text-card-foreground font-sans text-sm">Settings</h3>
+                <p className="text-xs text-muted-foreground mt-1 font-sans">Configure download preferences</p>
               </div>
             </div>
           </CardContent>

@@ -64,12 +64,12 @@ export default function RecentDownloadsTable() {
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <History className="text-primary" />
+            <CardTitle className="flex items-center space-x-2 text-base font-sans">
+              <History className="text-primary h-4 w-4" />
               <span>Recent Downloads</span>
             </CardTitle>
             <Button
@@ -77,29 +77,29 @@ export default function RecentDownloadsTable() {
               size="sm"
               onClick={handleClearHistory}
               data-testid="button-clear-history"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground font-sans text-xs"
             >
               Clear History
             </Button>
           </div>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="pt-0">
           {files.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No recent downloads</p>
+            <div className="text-center py-6 text-muted-foreground">
+              <History className="h-10 w-10 mx-auto mb-2 opacity-50" />
+              <p className="font-sans text-sm">No recent downloads</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Data Type</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="font-sans text-xs">Date</TableHead>
+                    <TableHead className="font-sans text-xs">Data Type</TableHead>
+                    <TableHead className="font-sans text-xs">Size</TableHead>
+                    <TableHead className="font-sans text-xs">Status</TableHead>
+                    <TableHead className="font-sans text-xs">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -109,20 +109,20 @@ export default function RecentDownloadsTable() {
                       className="hover:bg-muted/50 transition-colors"
                       data-testid={`table-row-${file.id}`}
                     >
-                      <TableCell className="font-medium">{file.downloadDate}</TableCell>
+                      <TableCell className="font-medium font-sans text-sm">{file.downloadDate}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <i className={`${getFileIcon(file.fileType)} text-primary`} />
-                          <span>{getFileTypeName(file.fileType)}</span>
+                          <i className={`${getFileIcon(file.fileType)} text-primary text-xs`} />
+                          <span className="font-sans text-sm">{getFileTypeName(file.fileType)}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground download-counter text-sm">
                         {file.fileSize ? formatFileSize(file.fileSize) : 'N/A'}
                       </TableCell>
                       <TableCell>
                         <Badge 
                           variant={file.status === 'completed' ? 'default' : 'destructive'}
-                          className={file.status === 'completed' ? 'bg-accent/10 text-accent' : ''}
+                          className={`${file.status === 'completed' ? 'bg-accent/10 text-accent' : ''} font-sans text-xs`}
                           data-testid={`badge-status-${file.id}`}
                         >
                           {file.status === 'completed' && <CheckCircle className="mr-1 h-3 w-3" />}

@@ -3,6 +3,7 @@ import DateSelectionPanel from "@/components/date-selection-panel";
 import StatusPanel from "@/components/status-panel";
 import RecentDownloadsTable from "@/components/recent-downloads-table";
 import QuickActions from "@/components/quick-actions";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function Home() {
   return (
@@ -20,18 +21,21 @@ export default function Home() {
                 <p className="text-sm text-muted-foreground">Professional Financial Data Management</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="text-sm text-muted-foreground">
-                Ready
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
+              <div className="flex items-center space-x-2">
+                <div className="text-sm text-muted-foreground">
+                  Ready
+                </div>
+                <Circle className="w-2 h-2 fill-accent text-accent" />
               </div>
-              <Circle className="w-2 h-2 fill-accent text-accent" />
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <DateSelectionPanel />
           <StatusPanel />
         </div>

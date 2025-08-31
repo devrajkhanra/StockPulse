@@ -120,20 +120,20 @@ export default function DateSelectionPanel() {
   };
 
   return (
-    <div className="lg:col-span-2 space-y-6">
+    <div className="lg:col-span-2 space-y-4">
       {/* Date Selection Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Calendar className="text-primary" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-base font-sans">
+            <Calendar className="text-primary h-4 w-4" />
             <span>Date Selection</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Single Date Selection */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Single Date</h3>
+            <div className="space-y-3">
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide font-sans">Single Date</h3>
               <div className="relative">
                 <Input
                   type="date"
@@ -146,15 +146,15 @@ export default function DateSelectionPanel() {
                     }
                   }}
                   data-testid="input-single-date"
-                  className="w-full"
+                  className="w-full font-sans"
                 />
               </div>
             </div>
             
             {/* Date Range Selection */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Date Range</h3>
-              <div className="space-y-3">
+            <div className="space-y-3">
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide font-sans">Date Range</h3>
+              <div className="space-y-2">
                 <Input
                   type="date"
                   value={startDate}
@@ -166,6 +166,7 @@ export default function DateSelectionPanel() {
                   }}
                   data-testid="input-start-date"
                   placeholder="Start date"
+                  className="font-sans"
                 />
                 <Input
                   type="date"
@@ -178,6 +179,7 @@ export default function DateSelectionPanel() {
                   }}
                   data-testid="input-end-date"
                   placeholder="End date"
+                  className="font-sans"
                 />
               </div>
             </div>
@@ -187,28 +189,28 @@ export default function DateSelectionPanel() {
 
       {/* Data Source Selection Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Database className="text-primary" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-base font-sans">
+            <Database className="text-primary h-4 w-4" />
             <span>Data Sources</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {dataSourceOptions.map((source) => (
               <label
                 key={source.id}
-                className="relative flex items-center p-4 bg-secondary rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors"
+                className="relative flex items-center p-3 bg-secondary/50 rounded-lg border border-border cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <Checkbox
                   checked={selectedSources.includes(source.id)}
                   onCheckedChange={(checked) => handleSourceToggle(source.id, !!checked)}
                   data-testid={`checkbox-${source.id}`}
-                  className="mr-3"
+                  className="mr-2"
                 />
                 <div>
-                  <div className="text-sm font-medium text-secondary-foreground">{source.label}</div>
-                  <div className="text-xs text-muted-foreground">{source.file}</div>
+                  <div className="text-sm font-medium text-secondary-foreground font-sans">{source.label}</div>
+                  <div className="text-xs text-muted-foreground font-mono">{source.file}</div>
                 </div>
               </label>
             ))}
@@ -218,50 +220,50 @@ export default function DateSelectionPanel() {
 
       {/* Download Configuration */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Settings className="text-primary" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-base font-sans">
+            <Settings className="text-primary h-4 w-4" />
             <span>Download Configuration</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <Label htmlFor="download-path" className="text-sm font-medium text-muted-foreground">
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="download-path" className="text-xs font-medium text-muted-foreground font-sans">
                 Download Path
               </Label>
               <Input
                 id="download-path"
                 value={downloadPath}
                 readOnly
-                className="bg-muted"
+                className="bg-muted/50 font-mono text-xs"
                 data-testid="input-download-path"
               />
             </div>
             
-            <div className="space-y-4">
-              <Label htmlFor="concurrent-downloads" className="text-sm font-medium text-muted-foreground">
+            <div className="space-y-2">
+              <Label htmlFor="concurrent-downloads" className="text-xs font-medium text-muted-foreground font-sans">
                 Concurrent Downloads
               </Label>
               <Select value={concurrentDownloads} onValueChange={setConcurrentDownloads}>
-                <SelectTrigger data-testid="select-concurrent-downloads">
+                <SelectTrigger data-testid="select-concurrent-downloads" className="font-sans">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">1 (Conservative)</SelectItem>
-                  <SelectItem value="3">3 (Recommended)</SelectItem>
-                  <SelectItem value="5">5 (Fast)</SelectItem>
+                  <SelectItem value="1" className="font-sans">1 (Conservative)</SelectItem>
+                  <SelectItem value="3" className="font-sans">3 (Recommended)</SelectItem>
+                  <SelectItem value="5" className="font-sans">5 (Fast)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <div className="mt-4 flex flex-col sm:flex-row gap-2">
             <Button
               onClick={handleStartDownload}
               disabled={createJobMutation.isPending}
               data-testid="button-start-download"
-              className="flex-1"
+              className="flex-1 font-sans"
             >
               <Calendar className="mr-2 h-4 w-4" />
               {createJobMutation.isPending ? 'Starting...' : 'Start Download'}
@@ -269,7 +271,7 @@ export default function DateSelectionPanel() {
             <Button
               variant="secondary"
               data-testid="button-schedule-download"
-              className="flex-1"
+              className="flex-1 font-sans"
             >
               <Settings className="mr-2 h-4 w-4" />
               Schedule Download

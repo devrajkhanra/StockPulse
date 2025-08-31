@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { List, CheckCircle, Circle, Trash2 } from "lucide-react";
+import { List, CheckCircle, Circle, Trash2, Download, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -51,19 +51,29 @@ export default function DownloadQueue() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <List className="text-primary" />
+          <CardTitle className="flex items-center space-x-2 text-base font-sans">
+            <List className="text-primary h-4 w-4" />
             <span>Download Queue</span>
           </CardTitle>
-          <span className="text-sm text-muted-foreground" data-testid="text-queue-progress">
-            {completedJobs.length} / {jobs.length}
-          </span>
+          <div className="flex items-center space-x-2">
+            {activeJobs.length > 0 && (
+              <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                <Download className="h-3 w-3 animate-bounce" />
+                <span className="download-counter">
+                  {activeJobs.reduce((sum, job) => sum + (job.completedFiles || 0), 0)} / {activeJobs.reduce((sum, job) => sum + (job.totalFiles || 0), 0)} files
+                </span>
+              </div>
+            )}
+            <span className="text-sm text-muted-foreground download-counter" data-testid="text-queue-progress">
+              {completedJobs.length} / {jobs.length} jobs
+            </span>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {activeJobs.length === 0 && completedJobs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Circle className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -76,31 +86,46 @@ export default function DownloadQueue() {
                 <div
                   key={job.id}
                   className={cn(
-                    "download-item rounded-lg p-4 border-l-4",
-                    job.status === 'running' ? "bg-secondary border-l-primary" : "bg-muted border-l-muted-foreground"
+                    "download-item rounded-lg p-3 border-l-4 transition-all duration-200",
+                    job.status === 'running' 
+                      ? "bg-secondary/50 border-l-primary downloading-pulse" 
+                      : "bg-muted/50 border-l-muted-foreground"
                   )}
                   data-testid={`download-item-${job.id}`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full",
-                        job.status === 'running' ? "bg-primary animate-pulse" : "bg-muted-foreground"
-                      )} />
-                      <span className="text-sm font-medium text-secondary-foreground">
-                        {formatJobType(job)}
+                      <div className="flex items-center space-x-2">
+                        {job.status === 'running' ? (
+                          <Loader2 className="w-3 h-3 text-primary animate-spin" />
+                        ) : (
+                          <Circle className="w-3 h-3 text-muted-foreground" />
+                        )}
+                        <span className="text-sm font-medium text-secondary-foreground font-sans">
+                          {formatJobType(job)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {job.status === 'running' && (
+                        <span className="text-xs text-primary font-medium download-counter">
+                          {job.completedFiles || 0}/{job.totalFiles || 0}
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {job.status === 'running' ? 'Downloading...' : 'Queued'}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {job.status === 'running' ? 'Downloading...' : 'Queued'}
-                    </span>
                   </div>
                   {job.status === 'running' && (
                     <>
-                      <Progress value={job.progress || 0} className="mb-2" />
+                      <Progress 
+                        value={job.progress || 0} 
+                        className="mb-2 h-2 progress-shimmer" 
+                      />
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{job.progress || 0}% complete</span>
-                        <span>{job.completedFiles || 0} / {job.totalFiles || 0} files</span>
+                        <span className="font-medium download-counter">{job.progress || 0}% complete</span>
+                        <span className="download-counter">{job.completedFiles || 0} / {job.totalFiles || 0} files</span>
                       </div>
                     </>
                   )}
@@ -111,17 +136,22 @@ export default function DownloadQueue() {
               {completedJobs.slice(0, 3).map((job: any) => (
                 <div
                   key={job.id}
-                  className="download-item bg-accent/10 rounded-lg p-4 border-l-4 border-l-accent"
+                  className="download-item bg-accent/10 rounded-lg p-3 border-l-4 border-l-accent"
                   data-testid={`completed-item-${job.id}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <CheckCircle className="text-accent h-4 w-4" />
-                      <span className="text-sm font-medium text-accent-foreground">
+                      <CheckCircle className="text-accent h-3 w-3" />
+                      <span className="text-sm font-medium text-accent-foreground font-sans">
                         {formatJobType(job)}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">Completed</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-accent font-medium download-counter">
+                        {job.completedFiles || 0} files
+                      </span>
+                      <span className="text-xs text-muted-foreground">Completed</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -130,15 +160,15 @@ export default function DownloadQueue() {
         </div>
         
         {completedJobs.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-border">
+          <div className="mt-3 pt-3 border-t border-border">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClearCompleted}
               data-testid="button-clear-completed"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground font-sans text-xs"
             >
-              <Trash2 className="mr-1 h-4 w-4" />
+              <Trash2 className="mr-1 h-3 w-3" />
               Clear Completed
             </Button>
           </div>
