@@ -1,30 +1,32 @@
-import { History, ExternalLink, RotateCcw, Info, CheckCircle } from "lucide-react";
+import { History, ExternalLink, RotateCcw, Info, CheckCircle, AlertCircle, Clock, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 export default function RecentDownloadsTable() {
   const { data: files = [] } = useQuery<any[]>({
     queryKey: ['/api/downloaded-files'],
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 10000,
   });
 
   const formatFileSize = (bytes: number) => {
+    if (!bytes) return 'N/A';
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(1)} MB`;
   };
 
   const getFileIcon = (fileType: string) => {
     const iconMap: { [key: string]: string } = {
-      'nifty50': 'fas fa-list',
-      'indices': 'fas fa-chart-line',
-      'stocks': 'fas fa-building',
-      'marketActivity': 'fas fa-chart-bar',
-      'options': 'fas fa-file-archive',
+      'nifty50': '📊',
+      'indices': '📈',
+      'stocks': '🏢',
+      'marketActivity': '📊',
+      'options': '⚡',
     };
-    return iconMap[fileType] || 'fas fa-file-csv';
+    return iconMap[fileType] || '📄';
   };
 
   const getFileTypeName = (fileType: string) => {
@@ -40,151 +42,182 @@ export default function RecentDownloadsTable() {
 
   const handleOpenFile = (filePath: string) => {
     console.log('Open file:', filePath);
-    // TODO: Implement file opening logic
   };
 
   const handleRedownload = (file: any) => {
     console.log('Redownload file:', file);
-    // TODO: Implement redownload logic
   };
 
   const handleRetry = (file: any) => {
     console.log('Retry download:', file);
-    // TODO: Implement retry logic
   };
 
   const handleViewError = (file: any) => {
     console.log('View error for file:', file);
-    // TODO: Implement error viewing logic
   };
 
   const handleClearHistory = () => {
     console.log('Clear history');
-    // TODO: Implement clear history logic
   };
 
   return (
-    <div className="mt-6">
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2 text-base font-sans">
-              <History className="text-primary h-4 w-4" />
-              <span>Recent Downloads</span>
-            </CardTitle>
+    <Card className="interactive-card">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
+              <History className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <span className="text-lg">Recent Downloads</span>
+          </CardTitle>
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="font-mono text-xs">
+              {files.length} files
+            </Badge>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClearHistory}
-              data-testid="button-clear-history"
-              className="text-muted-foreground hover:text-foreground font-sans text-xs"
+              className="text-muted-foreground hover:text-destructive micro-bounce"
             >
               Clear History
             </Button>
           </div>
-        </CardHeader>
-        
-        <CardContent className="pt-0">
-          {files.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              <History className="h-10 w-10 mx-auto mb-2 opacity-50" />
-              <p className="font-sans text-sm">No recent downloads</p>
+        </div>
+      </CardHeader>
+      
+      <CardContent>
+        {files.length === 0 ? (
+          <div className="text-center py-12 animate-fade-in">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
+              <FileText className="h-8 w-8 text-muted-foreground/50" />
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="font-sans text-xs">Date</TableHead>
-                    <TableHead className="font-sans text-xs">Data Type</TableHead>
-                    <TableHead className="font-sans text-xs">Size</TableHead>
-                    <TableHead className="font-sans text-xs">Status</TableHead>
-                    <TableHead className="font-sans text-xs">Actions</TableHead>
+            <h3 className="text-lg font-medium text-foreground mb-2">No downloads yet</h3>
+            <p className="text-sm text-muted-foreground">
+              Your download history will appear here
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-lg border border-border/50">
+            <Table className="data-table">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-border/50">
+                  <TableHead className="font-semibold text-foreground">Date</TableHead>
+                  <TableHead className="font-semibold text-foreground">Data Type</TableHead>
+                  <TableHead className="font-semibold text-foreground">Size</TableHead>
+                  <TableHead className="font-semibold text-foreground">Status</TableHead>
+                  <TableHead className="font-semibold text-foreground text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {files.map((file: any, index) => (
+                  <TableRow 
+                    key={file.id} 
+                    className={cn(
+                      "group transition-all duration-200 hover:bg-muted/30",
+                      "animate-fade-in"
+                    )}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-mono text-sm">{file.downloadDate}</span>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">{getFileIcon(file.fileType)}</span>
+                        <div>
+                          <div className="font-medium text-foreground text-sm">
+                            {getFileTypeName(file.fileType)}
+                          </div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            {file.fileName}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="font-mono text-sm text-muted-foreground">
+                        {formatFileSize(file.fileSize)}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge 
+                        className={cn(
+                          "status-badge",
+                          file.status === 'completed' ? 'completed' : 'failed'
+                        )}
+                      >
+                        {file.status === 'completed' ? (
+                          <>
+                            <CheckCircle className="h-3 w-3" />
+                            Completed
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="h-3 w-3" />
+                            Failed
+                          </>
+                        )}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {file.status === 'completed' ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenFile(file.filePath)}
+                              className="micro-bounce h-8 w-8 p-0"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRedownload(file)}
+                              className="micro-bounce h-8 w-8 p-0"
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRetry(file)}
+                              className="micro-bounce h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewError(file)}
+                              className="micro-bounce h-8 w-8 p-0"
+                            >
+                              <Info className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {files.map((file: any) => (
-                    <TableRow 
-                      key={file.id} 
-                      className="hover:bg-muted/50 transition-colors"
-                      data-testid={`table-row-${file.id}`}
-                    >
-                      <TableCell className="font-medium font-sans text-sm">{file.downloadDate}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <i className={`${getFileIcon(file.fileType)} text-primary text-xs`} />
-                          <span className="font-sans text-sm">{getFileTypeName(file.fileType)}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground download-counter text-sm">
-                        {file.fileSize ? formatFileSize(file.fileSize) : 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={file.status === 'completed' ? 'default' : 'destructive'}
-                          className={`${file.status === 'completed' ? 'bg-accent/10 text-accent' : ''} font-sans text-xs`}
-                          data-testid={`badge-status-${file.id}`}
-                        >
-                          {file.status === 'completed' && <CheckCircle className="mr-1 h-3 w-3" />}
-                          {file.status === 'failed' && <Info className="mr-1 h-3 w-3" />}
-                          {file.status === 'completed' ? 'Completed' : 'Failed'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          {file.status === 'completed' ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenFile(file.filePath)}
-                                data-testid={`button-open-${file.id}`}
-                                className="text-primary hover:text-primary/80"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRedownload(file)}
-                                data-testid={`button-redownload-${file.id}`}
-                                className="text-muted-foreground hover:text-foreground"
-                              >
-                                <RotateCcw className="h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRetry(file)}
-                                data-testid={`button-retry-${file.id}`}
-                                className="text-destructive hover:text-destructive/80"
-                              >
-                                <RotateCcw className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleViewError(file)}
-                                data-testid={`button-view-error-${file.id}`}
-                                className="text-muted-foreground hover:text-foreground"
-                              >
-                                <Info className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

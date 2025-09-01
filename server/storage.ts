@@ -77,16 +77,16 @@ export class MemStorage implements IStorage {
   async createDownloadJob(insertJob: InsertDownloadJob): Promise<DownloadJob> {
     const id = randomUUID();
     const job: DownloadJob = {
+      ...insertJob,
       id,
       userId: null,
       status: "pending",
       progress: 0,
-      totalFiles: 0,
+      totalFiles: insertJob.totalFiles || 0,
       completedFiles: 0,
       errorMessage: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...insertJob,
       endDate: insertJob.endDate || null,
     };
     this.downloadJobs.set(id, job);
@@ -115,16 +115,20 @@ export class MemStorage implements IStorage {
   async getUserDownloadJobs(userId?: string): Promise<DownloadJob[]> {
     return Array.from(this.downloadJobs.values())
       .filter(job => !userId || job.userId === userId)
-      .sort((a, b) => (new Date(b.createdAt || new Date())).getTime() - (new Date(a.createdAt || new Date())).getTime());
+      .sort((a, b) => {
+        const aDate = a.createdAt ? new Date(a.createdAt) : new Date();
+        const bDate = b.createdAt ? new Date(b.createdAt) : new Date();
+        return bDate.getTime() - aDate.getTime();
+      });
   }
 
   async createDownloadedFile(insertFile: InsertDownloadedFile): Promise<DownloadedFile> {
     const id = randomUUID();
     const file: DownloadedFile = {
+      ...insertFile,
       id,
       status: "completed",
       createdAt: new Date(),
-      ...insertFile,
       jobId: insertFile.jobId || null,
       fileSize: insertFile.fileSize || null,
     };
@@ -140,7 +144,11 @@ export class MemStorage implements IStorage {
 
   async getRecentDownloadedFiles(limit: number = 10): Promise<DownloadedFile[]> {
     return Array.from(this.downloadedFiles.values())
-      .sort((a, b) => (new Date(b.createdAt || new Date())).getTime() - (new Date(a.createdAt || new Date())).getTime())
+      .sort((a, b) => {
+        const aDate = a.createdAt ? new Date(a.createdAt) : new Date();
+        const bDate = b.createdAt ? new Date(b.createdAt) : new Date();
+        return bDate.getTime() - aDate.getTime();
+      })
       .slice(0, limit);
   }
 

@@ -109,7 +109,7 @@ export class NSEDataDownloader {
       let fileName: string;
       
       const formattedDate = this.formatDateForUrl(date, dataSource === 'marketActivity' ? 'ddmmyy' : 'ddmmyyyy');
-      url = url.replace('{date}', formattedDate);
+      url = url.replace('{date}', formattedDate) as any;
       
       if (dataSource === 'indices') {
         fileName = `ind_close_all_${formattedDate}.csv`;
@@ -129,7 +129,7 @@ export class NSEDataDownloader {
       await this.simulateDownload(url, filePath);
 
       // Handle ZIP extraction for options data
-      if ('isZip' in config && config.isZip) {
+      if (dataSource === 'options') {
         await this.simulateZipExtraction(filePath, date);
       }
 

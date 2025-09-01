@@ -144,4 +144,7 @@ export const DATA_SOURCE_CONFIG = {
     requiresDate: true,
     isZip: true,
   },
-};
+} as const;
+
+export type DataSourceKey = keyof typeof DATA_SOURCE_CONFIG;
+export type DataSourceConfig = typeof DATA_SOURCE_CONFIG[DataSourceKey];

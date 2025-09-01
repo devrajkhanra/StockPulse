@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertDownloadJobSchema, DATA_SOURCE_CONFIG } from "@shared/schema";
+import { insertDownloadJobSchema, DATA_SOURCE_CONFIG, type DataSourceKey } from "@shared/schema";
 import { z } from "zod";
 import axios from "axios";
 import * as fs from "fs/promises";
@@ -9,7 +9,7 @@ import * as path from "path";
 import * as os from "os";
 import { createWriteStream } from "fs";
 import { pipeline } from "stream/promises";
-import AdmZip from "adm-zip";
+import * as AdmZip from "adm-zip";
 
 function formatDateForUrl(date: string, format: "ddmmyyyy" | "ddmmyy"): string {
   const [day, month, year] = date.split("/");
@@ -182,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process each data source
       for (const dataSource of job.dataSources) {
         const config =
-          DATA_SOURCE_CONFIG[dataSource as keyof typeof DATA_SOURCE_CONFIG];
+          DATA_SOURCE_CONFIG[dataSource as DataSourceKey];
         const targetDir = path.join(baseDir, config.folder);
 
         if (dataSource === "nifty50") {
@@ -222,15 +222,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               if (dataSource === "marketActivity") {
                 const formattedDate = formatDateForUrl(date, "ddmmyy");
-                url = url.replace("{date}", formattedDate);
+                url = url.replace("{date}", formattedDate) as any;
                 fileName = `MA${formattedDate}.csv`;
               } else if (dataSource === "options") {
                 const formattedDate = formatDateForUrl(date, "ddmmyyyy");
-                url = url.replace("{date}", formattedDate);
+                url = url.replace("{date}", formattedDate) as any;
                 fileName = `fo${formattedDate}.zip`;
               } else {
                 const formattedDate = formatDateForUrl(date, "ddmmyyyy");
-                url = url.replace("{date}", formattedDate);
+                url = url.replace("{date}", formattedDate) as any;
                 fileName =
                   dataSource === "indices"
                     ? `ind_close_all_${formattedDate}.csv`
@@ -244,7 +244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               let finalFileName = fileName;
 
               // Handle ZIP extraction for options
-              if ("isZip" in config && config.isZip) {
+              if (dataSource === "options") {
                 finalPath = await extractOptionsFile(filePath, targetDir, date);
                 finalFileName = path.basename(finalPath);
               }
