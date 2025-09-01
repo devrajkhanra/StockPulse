@@ -7,6 +7,7 @@ import { ChartLine, Activity, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import '../styles/main.css'
 
 export default function Home() {
   const { data: stats } = useQuery<any>({
