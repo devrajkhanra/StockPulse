@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
+// Tailwind utilities removed
 
 export default function RecentDownloadsTable() {
   const { data: files = [] } = useQuery<any[]>({
@@ -70,7 +70,7 @@ export default function RecentDownloadsTable() {
             </div>
             <span className="text-lg">Recent Downloads</span>
           </CardTitle>
-          
+
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="font-mono text-xs">
               {files.length} files
@@ -86,7 +86,7 @@ export default function RecentDownloadsTable() {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {files.length === 0 ? (
           <div className="text-center py-12 animate-fade-in">
@@ -112,12 +112,9 @@ export default function RecentDownloadsTable() {
               </TableHeader>
               <TableBody>
                 {files.map((file: any, index) => (
-                  <TableRow 
-                    key={file.id} 
-                    className={cn(
-                      "group transition-all duration-200 hover:bg-muted/30",
-                      "animate-fade-in"
-                    )}
+                  <TableRow
+                    key={file.id}
+                    className="recent-download-row"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <TableCell className="font-medium">
@@ -126,7 +123,7 @@ export default function RecentDownloadsTable() {
                         <span className="font-mono text-sm">{file.downloadDate}</span>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <span className="text-lg">{getFileIcon(file.fileType)}</span>
@@ -140,19 +137,16 @@ export default function RecentDownloadsTable() {
                         </div>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       <span className="font-mono text-sm text-muted-foreground">
                         {formatFileSize(file.fileSize)}
                       </span>
                     </TableCell>
-                    
+
                     <TableCell>
-                      <Badge 
-                        className={cn(
-                          "status-badge",
-                          file.status === 'completed' ? 'completed' : 'failed'
-                        )}
+                      <Badge
+                        className={`status-badge ${file.status === 'completed' ? 'completed' : 'failed'}`}
                       >
                         {file.status === 'completed' ? (
                           <>
@@ -167,7 +161,7 @@ export default function RecentDownloadsTable() {
                         )}
                       </Badge>
                     </TableCell>
-                    
+
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         {file.status === 'completed' ? (

@@ -1,7 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertDownloadJobSchema, DATA_SOURCE_CONFIG, type DataSourceKey } from "@shared/schema";
+import {
+  insertDownloadJobSchema,
+  DATA_SOURCE_CONFIG,
+  type DataSourceKey,
+} from "@shared/schema";
 import { z } from "zod";
 import axios from "axios";
 import * as fs from "fs/promises";
@@ -9,7 +13,7 @@ import * as path from "path";
 import * as os from "os";
 import { createWriteStream } from "fs";
 import { pipeline } from "stream/promises";
-import * as AdmZip from "adm-zip";
+import AdmZip from "adm-zip";
 
 function formatDateForUrl(date: string, format: "ddmmyyyy" | "ddmmyy"): string {
   const [day, month, year] = date.split("/");
@@ -181,8 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process each data source
       for (const dataSource of job.dataSources) {
-        const config =
-          DATA_SOURCE_CONFIG[dataSource as DataSourceKey];
+        const config = DATA_SOURCE_CONFIG[dataSource as DataSourceKey];
         const targetDir = path.join(baseDir, config.folder);
 
         if (dataSource === "nifty50") {

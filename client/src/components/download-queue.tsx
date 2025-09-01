@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
+// Tailwind utilities removed
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,14 +71,14 @@ export default function DownloadQueue() {
             </div>
             <span className="text-lg">Download Queue</span>
           </CardTitle>
-          
+
           {/* Queue Stats */}
           <div className="flex items-center gap-3">
             {activeJobs.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="status-indicator active" />
                 <span className="font-mono">
-                  {activeJobs.reduce((sum, job) => sum + (job.completedFiles || 0), 0)} / 
+                  {activeJobs.reduce((sum, job) => sum + (job.completedFiles || 0), 0)} /
                   {activeJobs.reduce((sum, job) => sum + (job.totalFiles || 0), 0)}
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function DownloadQueue() {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <div className="space-y-3">
           {jobs.length === 0 ? (
@@ -108,12 +108,7 @@ export default function DownloadQueue() {
               {activeJobs.map((job: any) => (
                 <div
                   key={job.id}
-                  className={cn(
-                    "group relative rounded-xl border p-4 transition-all duration-300",
-                    job.status === 'running'
-                      ? "border-primary/30 bg-primary/5 shadow-md"
-                      : "border-border/50 bg-card hover:border-border hover:shadow-sm"
-                  )}
+                  className={`download-queue-job ${job.status === 'running' ? 'running' : ''}`}
                 >
                   {/* Job Header */}
                   <div className="flex items-center justify-between mb-3">
@@ -124,7 +119,7 @@ export default function DownloadQueue() {
                           {formatJobType(job)}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge 
+                          <Badge
                             variant={job.status === 'running' ? 'default' : 'secondary'}
                             className="text-xs"
                           >
@@ -173,8 +168,8 @@ export default function DownloadQueue() {
                   {job.status === 'running' && (
                     <div className="space-y-2">
                       <div className="progress-enhanced">
-                        <div 
-                          className="progress-fill" 
+                        <div
+                          className="progress-fill"
                           style={{ width: `${job.progress || 0}%` }}
                         />
                       </div>
@@ -213,7 +208,7 @@ export default function DownloadQueue() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity micro-bounce">
                       <Download className="h-4 w-4" />
                     </Button>

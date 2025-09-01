@@ -2,7 +2,7 @@ import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 
-import { cn } from "@/lib/utils"
+// import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -31,11 +31,13 @@ export function DatePicker({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn(
-            "w-full justify-start text-left font-normal font-sans",
-            !date && "text-muted-foreground",
-            className
-          )}
+          className={
+            [
+              "date-picker-trigger",
+              !date ? "date-picker-trigger-placeholder" : "",
+              className || ""
+            ].filter(Boolean).join(" ")
+          }
           disabled={disabled}
           data-testid="date-picker-trigger"
         >
@@ -73,7 +75,7 @@ export function DateRangePicker({
   disabled = false,
 }: DateRangePickerProps) {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={className ? `date-range-picker ${className}` : "date-range-picker"}>
       <DatePicker
         date={startDate}
         onDateChange={onStartDateChange}

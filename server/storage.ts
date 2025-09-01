@@ -1,4 +1,12 @@
-import { type User, type UpsertUser, type DownloadJob, type InsertDownloadJob, type DownloadedFile, type InsertDownloadedFile, type SystemStats } from "@shared/schema";
+import {
+  type User,
+  type UpsertUser,
+  type DownloadJob,
+  type InsertDownloadJob,
+  type DownloadedFile,
+  type InsertDownloadedFile,
+  type SystemStats,
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -10,7 +18,10 @@ export interface IStorage {
   // Download job operations
   createDownloadJob(job: InsertDownloadJob): Promise<DownloadJob>;
   getDownloadJob(id: string): Promise<DownloadJob | undefined>;
-  updateDownloadJob(id: string, updates: Partial<DownloadJob>): Promise<DownloadJob | undefined>;
+  updateDownloadJob(
+    id: string,
+    updates: Partial<DownloadJob>
+  ): Promise<DownloadJob | undefined>;
   getActiveDownloadJobs(): Promise<DownloadJob[]>;
   getUserDownloadJobs(userId?: string): Promise<DownloadJob[]>;
 
@@ -49,8 +60,8 @@ export class MemStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const existingUser = this.users.get(userData.id || '');
-    
+    const existingUser = this.users.get(userData.id || "");
+
     if (existingUser) {
       // Update existing user
       const updatedUser: User = {
@@ -64,8 +75,11 @@ export class MemStorage implements IStorage {
       // Create new user
       const id = userData.id || randomUUID();
       const user: User = {
-        ...userData,
         id,
+        email: userData.email ?? null,
+        firstName: userData.firstName ?? null,
+        lastName: userData.lastName ?? null,
+        profileImageUrl: userData.profileImageUrl ?? null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -97,7 +111,10 @@ export class MemStorage implements IStorage {
     return this.downloadJobs.get(id);
   }
 
-  async updateDownloadJob(id: string, updates: Partial<DownloadJob>): Promise<DownloadJob | undefined> {
+  async updateDownloadJob(
+    id: string,
+    updates: Partial<DownloadJob>
+  ): Promise<DownloadJob | undefined> {
     const job = this.downloadJobs.get(id);
     if (!job) return undefined;
 
@@ -108,13 +125,13 @@ export class MemStorage implements IStorage {
 
   async getActiveDownloadJobs(): Promise<DownloadJob[]> {
     return Array.from(this.downloadJobs.values()).filter(
-      job => job.status === "pending" || job.status === "running"
+      (job) => job.status === "pending" || job.status === "running"
     );
   }
 
   async getUserDownloadJobs(userId?: string): Promise<DownloadJob[]> {
     return Array.from(this.downloadJobs.values())
-      .filter(job => !userId || job.userId === userId)
+      .filter((job) => !userId || job.userId === userId)
       .sort((a, b) => {
         const aDate = a.createdAt ? new Date(a.createdAt) : new Date();
         const bDate = b.createdAt ? new Date(b.createdAt) : new Date();
@@ -122,7 +139,9 @@ export class MemStorage implements IStorage {
       });
   }
 
-  async createDownloadedFile(insertFile: InsertDownloadedFile): Promise<DownloadedFile> {
+  async createDownloadedFile(
+    insertFile: InsertDownloadedFile
+  ): Promise<DownloadedFile> {
     const id = randomUUID();
     const file: DownloadedFile = {
       ...insertFile,
@@ -138,11 +157,13 @@ export class MemStorage implements IStorage {
 
   async getDownloadedFilesByJob(jobId: string): Promise<DownloadedFile[]> {
     return Array.from(this.downloadedFiles.values()).filter(
-      file => file.jobId === jobId
+      (file) => file.jobId === jobId
     );
   }
 
-  async getRecentDownloadedFiles(limit: number = 10): Promise<DownloadedFile[]> {
+  async getRecentDownloadedFiles(
+    limit: number = 10
+  ): Promise<DownloadedFile[]> {
     return Array.from(this.downloadedFiles.values())
       .sort((a, b) => {
         const aDate = a.createdAt ? new Date(a.createdAt) : new Date();
@@ -157,9 +178,10 @@ export class MemStorage implements IStorage {
     this.systemStats.activeUsers = Math.floor(Math.random() * 2000) + 500; // Simulate active users
     this.systemStats.totalDownloads = this.downloadJobs.size;
     this.systemStats.totalFiles = this.downloadedFiles.size;
-    this.systemStats.totalSize = Array.from(this.downloadedFiles.values())
-      .reduce((total, file) => total + (file.fileSize || 0), 0);
-    
+    this.systemStats.totalSize = Array.from(
+      this.downloadedFiles.values()
+    ).reduce((total, file) => total + (file.fileSize || 0), 0);
+
     return this.systemStats;
   }
 

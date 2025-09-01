@@ -1,7 +1,5 @@
 import { CalendarDays, Calendar, Settings, Zap, TrendingUp, Clock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+// No more Card, Button, Badge imports; use plain HTML and CSS classes
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -35,7 +33,7 @@ export default function QuickActions() {
   const handleDownloadToday = () => {
     const today = new Date();
     const formattedDate = formatDateForDisplay(today.toISOString().split('T')[0]);
-    
+
     createJobMutation.mutate({
       jobType: 'single',
       startDate: formattedDate,
@@ -47,10 +45,10 @@ export default function QuickActions() {
     const today = new Date();
     const weekAgo = new Date(today);
     weekAgo.setDate(today.getDate() - 7);
-    
+
     const startDate = formatDateForDisplay(weekAgo.toISOString().split('T')[0]);
     const endDate = formatDateForDisplay(today.toISOString().split('T')[0]);
-    
+
     createJobMutation.mutate({
       jobType: 'range',
       startDate,
@@ -106,83 +104,63 @@ export default function QuickActions() {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80">
-          <Zap className="h-4 w-4 text-primary-foreground" />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5em' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '1em' }}>
+        <div style={{ display: 'flex', height: 32, width: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 12, background: 'linear-gradient(135deg, #5b21b6, #7c3aed 80%)' }}>
+          <Zap style={{ height: 16, width: 16, color: '#fff' }} />
         </div>
-        <h2 className="text-lg font-semibold text-foreground">Quick Actions</h2>
-        <Badge variant="outline" className="text-xs">
-          <Clock className="mr-1 h-3 w-3" />
+        <h2 style={{ fontSize: '1.25em', fontWeight: 600, color: '#222' }}>Quick Actions</h2>
+        <span className="badge text-xs" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <Clock style={{ marginRight: 4, height: 12, width: 12 }} />
           One-click
-        </Badge>
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1em' }}>
         {quickActions.map((action, index) => (
-          <Button
+          <button
             key={action.id}
-            variant="ghost"
             onClick={action.action}
             disabled={createJobMutation.isPending}
-            className="h-auto p-0 micro-lift"
-            style={{ animationDelay: `${index * 100}ms` }}
+            className="btn-primary"
+            style={{ padding: 0, minHeight: 0, animationDelay: `${index * 100}ms` }}
           >
-            <Card className={cn(
-              "w-full border transition-all duration-300 hover:shadow-lg",
-              action.borderColor,
-              `bg-gradient-to-br ${action.bgGradient}`
-            )}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={cn(
-                    "flex h-12 w-12 items-center justify-center rounded-xl shadow-lg",
-                    `bg-gradient-to-br ${action.gradient}`
-                  )}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <Badge variant={action.badgeVariant} className="text-xs">
-                    {action.badge}
-                  </Badge>
+            <div className="card" style={{ width: '100%', border: '1px solid #e5e7eb', background: '#fff', transition: 'box-shadow 0.2s, border-color 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1em' }}>
+                <div style={{ display: 'flex', height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', background: 'linear-gradient(135deg, #5b21b6, #818cf8 80%)' }}>
+                  <action.icon style={{ height: 24, width: 24, color: '#fff' }} />
                 </div>
-                
-                <div className="text-left">
-                  <h3 className="font-semibold text-foreground mb-2 text-base">
-                    {action.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {action.description}
-                  </p>
-                </div>
-
-                {/* Hover indicator */}
-                <div className="mt-4 flex items-center text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span>Click to execute</span>
-                  <ExternalLink className="ml-1 h-3 w-3" />
-                </div>
-              </CardContent>
-            </Card>
-          </Button>
+                <span className="badge text-xs">{action.badge}</span>
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <h3 style={{ fontWeight: 600, color: '#222', marginBottom: 8, fontSize: '1em' }}>{action.title}</h3>
+                <p style={{ fontSize: '0.9em', color: '#6b7280', lineHeight: 1.5 }}>{action.description}</p>
+              </div>
+              <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', fontSize: '0.75em', color: '#6b7280', opacity: 0.7 }}>
+                <span>Click to execute</span>
+                {/* Inline SVG for external link */}
+                <svg style={{ marginLeft: 4, height: 12, width: 12 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+              </div>
+            </div>
+          </button>
         ))}
       </div>
 
       {/* Pro Tips Section */}
-      <Card className="border-dashed border-primary/30 bg-primary/5 animate-fade-in" style={{ animationDelay: '300ms' }}>
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
-              <Zap className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground mb-1">Pro Tip</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Use "Today's Data" for quick daily updates, or "This Week" for comprehensive historical analysis. 
-                Configure concurrent downloads based on your network capacity.
-              </p>
-            </div>
+      <div className="card" style={{ border: '1px dashed #a5b4fc', background: '#f5f3ff', animation: 'fade-in 0.5s', animationDelay: '300ms', padding: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <div style={{ display: 'flex', height: 32, width: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 12, background: '#ede9fe' }}>
+            <Zap style={{ height: 16, width: 16, color: '#5b21b6' }} />
           </div>
-        </CardContent>
-      </Card>
+          <div>
+            <h4 style={{ fontWeight: 500, color: '#222', marginBottom: 4 }}>Pro Tip</h4>
+            <p style={{ fontSize: '0.9em', color: '#6b7280', lineHeight: 1.5 }}>
+              Use "Today's Data" for quick daily updates, or "This Week" for comprehensive historical analysis. <br />
+              Configure concurrent downloads based on your network capacity.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
