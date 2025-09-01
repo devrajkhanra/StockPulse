@@ -135,7 +135,7 @@
 
   /* Modern button styles */
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+    @apply bg-primary text-primary-foreground hover:bg-primary/80;
     @apply transition-all duration-200 ease-out;
     @apply shadow-lg hover:shadow-xl;
     @apply transform hover:scale-[1.02] active:scale-[0.98];

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -14,37 +15,37 @@ import { DATA_SOURCE_CONFIG, type InsertDownloadJob } from "@shared/schema";
 import { DatePicker, DateRangePicker } from "@/components/ui/date-picker";
 
 const dataSourceOptions = [
-  { 
-    id: 'nifty50', 
-    label: 'Nifty 50 List', 
+  {
+    id: 'nifty50',
+    label: 'Nifty 50 List',
     file: 'ind_nifty50list.csv',
     icon: '📊',
     description: 'Current list of Nifty 50 stocks'
   },
-  { 
-    id: 'indices', 
-    label: 'Indices Data', 
+  {
+    id: 'indices',
+    label: 'Indices Data',
     file: 'ind_close_all_*.csv',
     icon: '📈',
     description: 'Historical indices closing data'
   },
-  { 
-    id: 'stocks', 
-    label: 'Stocks Data', 
+  {
+    id: 'stocks',
+    label: 'Stocks Data',
     file: 'sec_bhavdata_full_*.csv',
     icon: '🏢',
     description: 'Daily stock market data'
   },
-  { 
-    id: 'marketActivity', 
-    label: 'Market Activity', 
+  {
+    id: 'marketActivity',
+    label: 'Market Activity',
     file: 'MA*.csv',
     icon: '📊',
     description: 'Market activity reports'
   },
-  { 
-    id: 'options', 
-    label: 'Options Data', 
+  {
+    id: 'options',
+    label: 'Options Data',
     file: 'op*.csv (from ZIP)',
     icon: '⚡',
     description: 'F&O market data'
@@ -74,7 +75,7 @@ export default function DateSelectionPanel() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/download-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
-      
+
       // Reset form with animation
       setSelectedDate(undefined);
       setStartDate(undefined);
@@ -111,7 +112,7 @@ export default function DateSelectionPanel() {
     } else if (startDate && endDate) {
       const formattedStart = startDate.toLocaleDateString('en-GB');
       const formattedEnd = endDate.toLocaleDateString('en-GB');
-      
+
       const validation = validateDateRange(formattedStart, formattedEnd);
       if (!validation.isValid) {
         toast({
@@ -195,7 +196,7 @@ export default function DateSelectionPanel() {
                 className="w-full form-control"
               />
             </div>
-            
+
             {/* Date Range Selection */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
@@ -233,7 +234,7 @@ export default function DateSelectionPanel() {
               </div>
               <span className="text-lg">Data Sources</span>
             </CardTitle>
-            
+
             {/* Quick Select Buttons */}
             <div className="flex items-center gap-2">
               <Button
@@ -292,7 +293,7 @@ export default function DateSelectionPanel() {
                     </code>
                   </div>
                 </div>
-                
+
                 {/* Selection indicator */}
                 {selectedSources.includes(source.id) && (
                   <div className="absolute top-2 right-2">
@@ -329,8 +330,8 @@ export default function DateSelectionPanel() {
                   className="form-control font-mono text-sm flex-1"
                   placeholder="Enter download path"
                 />
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     toast({
@@ -344,7 +345,7 @@ export default function DateSelectionPanel() {
                 </Button>
               </div>
             </div>
-            
+
             {/* Concurrent Downloads */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground">
@@ -363,7 +364,7 @@ export default function DateSelectionPanel() {
               </Select>
             </div>
           </div>
-          
+
           {/* Action Buttons */}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <Button
@@ -382,7 +383,7 @@ export default function DateSelectionPanel() {
               )}
               {createJobMutation.isPending ? 'Starting Download...' : 'Start Download'}
             </Button>
-            
+
             <Button
               variant="outline"
               className="flex-1 h-12 micro-lift"
