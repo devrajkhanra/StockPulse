@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertDownloadJobSchema, DATA_SOURCE_CONFIG } from "@shared/schema";
 import { z } from "zod";
 import axios from "axios";
@@ -12,9 +11,9 @@ import { createWriteStream } from "fs";
 import { pipeline } from "stream/promises";
 import AdmZip from "adm-zip";
 
-function formatDateForUrl(date: string, format: 'ddmmyyyy' | 'ddmmyy'): string {
-  const [day, month, year] = date.split('/');
-  if (format === 'ddmmyyyy') {
+function formatDateForUrl(date: string, format: "ddmmyyyy" | "ddmmyy"): string {
+  const [day, month, year] = date.split("/");
+  if (format === "ddmmyyyy") {
     return `${day}${month}${year}`;
   }
   return `${day}${month}${year.slice(-2)}`;
@@ -22,9 +21,9 @@ function formatDateForUrl(date: string, format: 'ddmmyyyy' | 'ddmmyy'): string {
 
 async function downloadFile(url: string, filePath: string): Promise<number> {
   const response = await axios({
-    method: 'GET',
+    method: "GET",
     url,
-    responseType: 'stream',
+    responseType: "stream",
     timeout: 30000,
   });
 
@@ -36,14 +35,21 @@ async function downloadFile(url: string, filePath: string): Promise<number> {
   return stats.size;
 }
 
-async function extractOptionsFile(zipFilePath: string, targetDir: string, date: string): Promise<string> {
+async function extractOptionsFile(
+  zipFilePath: string,
+  targetDir: string,
+  date: string
+): Promise<string> {
   const zip = new AdmZip(zipFilePath);
   const entries = zip.getEntries();
-  
-  const formattedDate = formatDateForUrl(date, 'ddmmyyyy');
+
+  const formattedDate = formatDateForUrl(date, "ddmmyyyy");
   const targetFileName = `op${formattedDate}.csv`;
-  
-  const entry = entries.find((e: any) => e.entryName.toLowerCase().includes('op') && e.entryName.endsWith('.csv'));
+
+  const entry = entries.find(
+    (e: any) =>
+      e.entryName.toLowerCase().includes("op") && e.entryName.endsWith(".csv")
+  );
   if (!entry) {
     throw new Error(`Options file ${targetFileName} not found in ZIP archive`);
   }
@@ -51,29 +57,14 @@ async function extractOptionsFile(zipFilePath: string, targetDir: string, date: 
   const extractPath = path.join(targetDir, targetFileName);
   await fs.mkdir(targetDir, { recursive: true });
   await fs.writeFile(extractPath, entry.getData());
-  
+
   // Delete the ZIP file
   await fs.unlink(zipFilePath);
-  
+
   return extractPath;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // Get system stats
   app.get("/api/stats", async (req, res) => {
     try {
@@ -84,11 +75,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get download jobs
-  app.get("/api/download-jobs", isAuthenticated, async (req: any, res) => {
+  // Get download jobs (public, returns all jobs)
+  app.get("/api/download-jobs", async (_req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const jobs = await storage.getUserDownloadJobs(userId);
+      const jobs = await storage.getUserDownloadJobs();
       res.json(jobs);
     } catch (error) {
       res.status(500).json({ message: "Failed to get download jobs" });
@@ -106,55 +96,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create download job
-  app.post("/api/download-jobs", isAuthenticated, async (req: any, res) => {
+  // Create download job (public)
+  app.post("/api/download-jobs", async (req, res) => {
     try {
       const validatedData = insertDownloadJobSchema.parse(req.body);
-      
       // Calculate total files to download
       let totalFiles = 0;
       const dates: string[] = [];
-      
-      if (validatedData.jobType === 'single') {
+      if (validatedData.jobType === "single") {
         dates.push(validatedData.startDate);
       } else {
         // Generate date range
-        const start = new Date(validatedData.startDate.split('/').reverse().join('-'));
-        const end = new Date(validatedData.endDate!.split('/').reverse().join('-'));
-        
+        const start = new Date(
+          validatedData.startDate.split("/").reverse().join("-")
+        );
+        const end = new Date(
+          validatedData.endDate!.split("/").reverse().join("-")
+        );
         for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
-          const formatted = d.toLocaleDateString('en-GB');
+          const formatted = d.toLocaleDateString("en-GB");
           dates.push(formatted);
         }
       }
-
       totalFiles = dates.length * validatedData.dataSources.length;
-      if (validatedData.dataSources.includes('nifty50')) {
+      if (validatedData.dataSources.includes("nifty50")) {
         totalFiles -= dates.length - 1; // Nifty50 is downloaded only once
       }
-
-      const userId = req.user?.claims?.sub;
       const job = await storage.createDownloadJob({
         ...validatedData,
         totalFiles,
-        userId,
+        userId: undefined,
       });
-
       // Start download process asynchronously
       processDownloadJob(job.id).catch(console.error);
-
       res.json(job);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Validation error", errors: error.errors });
+        res
+          .status(400)
+          .json({ message: "Validation error", errors: error.errors });
       } else {
         res.status(500).json({ message: "Failed to create download job" });
       }
     }
   });
 
-  // Get specific download job
-  app.get("/api/download-jobs/:id", isAuthenticated, async (req: any, res) => {
+  // Get specific download job (public)
+  app.get("/api/download-jobs/:id", async (req, res) => {
     try {
       const job = await storage.getDownloadJob(req.params.id);
       if (!job) {
@@ -174,32 +162,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.updateDownloadJob(jobId, { status: "running" });
 
-      const baseDir = path.join(os.homedir(), 'Desktop', 'NSE-Data', 'data');
+      const baseDir = path.join(os.homedir(), "Desktop", "NSE-Data", "data");
       let completedFiles = 0;
 
       // Generate dates array
       const dates: string[] = [];
-      if (job.jobType === 'single') {
+      if (job.jobType === "single") {
         dates.push(job.startDate);
       } else {
-        const start = new Date(job.startDate.split('/').reverse().join('-'));
-        const end = new Date(job.endDate!.split('/').reverse().join('-'));
-        
+        const start = new Date(job.startDate.split("/").reverse().join("-"));
+        const end = new Date(job.endDate!.split("/").reverse().join("-"));
+
         for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
-          const formatted = d.toLocaleDateString('en-GB');
+          const formatted = d.toLocaleDateString("en-GB");
           dates.push(formatted);
         }
       }
 
       // Process each data source
       for (const dataSource of job.dataSources) {
-        const config = DATA_SOURCE_CONFIG[dataSource as keyof typeof DATA_SOURCE_CONFIG];
+        const config =
+          DATA_SOURCE_CONFIG[dataSource as keyof typeof DATA_SOURCE_CONFIG];
         const targetDir = path.join(baseDir, config.folder);
 
-        if (dataSource === 'nifty50') {
+        if (dataSource === "nifty50") {
           // Download Nifty50 list once
           try {
-            const fileName = 'ind_nifty50list.csv';
+            const fileName = "ind_nifty50list.csv";
             const filePath = path.join(targetDir, fileName);
             const fileSize = await downloadFile(config.url, filePath);
 
@@ -214,10 +203,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
 
             completedFiles++;
-            const progress = Math.round((completedFiles / (job.totalFiles || 1)) * 100);
-            await storage.updateDownloadJob(jobId, { 
-              completedFiles, 
-              progress 
+            const progress = Math.round(
+              (completedFiles / (job.totalFiles || 1)) * 100
+            );
+            await storage.updateDownloadJob(jobId, {
+              completedFiles,
+              progress,
             });
           } catch (error) {
             console.error(`Failed to download ${dataSource}:`, error);
@@ -228,21 +219,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             try {
               let url = config.url;
               let fileName: string;
-              
-              if (dataSource === 'marketActivity') {
-                const formattedDate = formatDateForUrl(date, 'ddmmyy');
-                url = url.replace('{date}', formattedDate);
+
+              if (dataSource === "marketActivity") {
+                const formattedDate = formatDateForUrl(date, "ddmmyy");
+                url = url.replace("{date}", formattedDate);
                 fileName = `MA${formattedDate}.csv`;
-              } else if (dataSource === 'options') {
-                const formattedDate = formatDateForUrl(date, 'ddmmyyyy');
-                url = url.replace('{date}', formattedDate);
+              } else if (dataSource === "options") {
+                const formattedDate = formatDateForUrl(date, "ddmmyyyy");
+                url = url.replace("{date}", formattedDate);
                 fileName = `fo${formattedDate}.zip`;
               } else {
-                const formattedDate = formatDateForUrl(date, 'ddmmyyyy');
-                url = url.replace('{date}', formattedDate);
-                fileName = dataSource === 'indices' 
-                  ? `ind_close_all_${formattedDate}.csv`
-                  : `sec_bhavdata_full_${formattedDate}.csv`;
+                const formattedDate = formatDateForUrl(date, "ddmmyyyy");
+                url = url.replace("{date}", formattedDate);
+                fileName =
+                  dataSource === "indices"
+                    ? `ind_close_all_${formattedDate}.csv`
+                    : `sec_bhavdata_full_${formattedDate}.csv`;
               }
 
               const filePath = path.join(targetDir, fileName);
@@ -252,7 +244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               let finalFileName = fileName;
 
               // Handle ZIP extraction for options
-              if ('isZip' in config && config.isZip) {
+              if ("isZip" in config && config.isZip) {
                 finalPath = await extractOptionsFile(filePath, targetDir, date);
                 finalFileName = path.basename(finalPath);
               }
@@ -268,20 +260,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
 
               completedFiles++;
-              const progress = Math.round((completedFiles / (job.totalFiles || 1)) * 100);
-              await storage.updateDownloadJob(jobId, { 
-                completedFiles, 
-                progress 
+              const progress = Math.round(
+                (completedFiles / (job.totalFiles || 1)) * 100
+              );
+              await storage.updateDownloadJob(jobId, {
+                completedFiles,
+                progress,
               });
-
             } catch (error) {
-              console.error(`Failed to download ${dataSource} for ${date}:`, error);
-              
+              console.error(
+                `Failed to download ${dataSource} for ${date}:`,
+                error
+              );
+
               await storage.createDownloadedFile({
                 jobId,
                 fileName: `${dataSource}_${date}_failed`,
                 fileType: dataSource,
-                filePath: '',
+                filePath: "",
                 fileSize: 0,
                 downloadDate: date,
                 status: "failed",
@@ -291,16 +287,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      await storage.updateDownloadJob(jobId, { 
+      await storage.updateDownloadJob(jobId, {
         status: "completed",
-        progress: 100 
+        progress: 100,
       });
-
     } catch (error) {
       console.error(`Job ${jobId} failed:`, error);
-      await storage.updateDownloadJob(jobId, { 
+      await storage.updateDownloadJob(jobId, {
         status: "failed",
-        errorMessage: error instanceof Error ? error.message : "Unknown error"
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }

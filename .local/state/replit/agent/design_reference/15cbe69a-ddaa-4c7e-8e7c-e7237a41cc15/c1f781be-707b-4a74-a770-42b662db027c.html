@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSE Data Downloader - Professional Financial Data Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["var(--font-sans)"],
+                }
+            },
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --background: hsl(0 0% 100%);
+            --foreground: hsl(222 84% 4.9%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(222 84% 4.9%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(222 84% 4.9%);
+            --primary: hsl(210 100% 50%);
+            --primary-foreground: hsl(210 40% 98%);
+            --secondary: hsl(210 40% 96%);
+            --secondary-foreground: hsl(222 47% 11%);
+            --muted: hsl(210 40% 96%);
+            --muted-foreground: hsl(215 16% 47%);
+            --accent: hsl(142 76% 36%);
+            --accent-foreground: hsl(355 7% 97%);
+            --destructive: hsl(0 84% 60%);
+            --destructive-foreground: hsl(210 40% 98%);
+            --border: hsl(214 32% 91%);
+            --input: hsl(214 32% 91%);
+            --ring: hsl(210 100% 50%);
+            --radius: 0.5rem;
+            --font-sans: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: hsl(222 84% 4.9%);
+                --foreground: hsl(210 40% 98%);
+                --card: hsl(222 84% 4.9%);
+                --card-foreground: hsl(210 40% 98%);
+                --popover: hsl(222 84% 4.9%);
+                --popover-foreground: hsl(210 40% 98%);
+                --primary: hsl(210 100% 50%);
+                --primary-foreground: hsl(222 84% 4.9%);
+                --secondary: hsl(217 32% 17%);
+                --secondary-foreground: hsl(210 40% 98%);
+                --muted: hsl(217 32% 17%);
+                --muted-foreground: hsl(215 20% 65%);
+                --accent: hsl(142 70% 45%);
+                --accent-foreground: hsl(210 40% 98%);
+                --destructive: hsl(0 62% 30%);
+                --destructive-foreground: hsl(210 40% 98%);
+                --border: hsl(217 32% 17%);
+                --input: hsl(217 32% 17%);
+                --ring: hsl(210 100% 50%);
+            }
+        }
+        
+        * {
+            font-family: var(--font-sans);
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .download-item {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .download-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px hsl(210 100% 50% / 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground min-h-screen">
+    <!-- @COMPONENT: Header [Logo and title area] -->
+    <header class="bg-card border-b border-border shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-primary text-primary-foreground p-2 rounded-lg">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-semibold text-foreground">NSE Data Downloader</h1>
+                        <p class="text-sm text-muted-foreground">Professional Financial Data Management</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="text-sm text-muted-foreground">
+                        <span data-bind="user.status">Ready</span>
+                    </div>
+                    <div class="w-2 h-2 bg-accent rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- @COMPONENT: DateSelectionPanel [Main configuration panel] -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Date Selection Card -->
+                <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-calendar-alt text-primary"></i>
+                        <h2 class="text-lg font-semibold text-card-foreground">Date Selection</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Single Date Selection -->
+                        <div class="space-y-4">
+                            <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">Single Date</h3>
+                            <div class="relative">
+                                <input 
+                                    type="date" 
+                                    data-bind="selectedDate"
+                                    class="w-full px-4 py-3 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                                    placeholder="Select date"
+                                />
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-calendar text-muted-foreground"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Date Range Selection -->
+                        <div class="space-y-4">
+                            <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">Date Range</h3>
+                            <div class="space-y-3">
+                                <input 
+                                    type="date" 
+                                    data-bind="startDate"
+                                    class="w-full px-4 py-3 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                                    placeholder="Start date"
+                                />
+                                <input 
+                                    type="date" 
+                                    data-bind="endDate"
+                                    class="w-full px-4 py-3 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                                    placeholder="End date"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Source Selection Card -->
+                <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-database text-primary"></i>
+                        <h2 class="text-lg font-semibold text-card-foreground">Data Sources</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- @MAP: dataSources.map(source => ( -->
+                        <label class="relative flex items-center p-4 bg-secondary rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors">
+                            <input type="checkbox" data-bind="sources.nifty50" class="sr-only peer" checked>
+                            <div class="w-5 h-5 bg-white border-2 border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center">
+                                <i class="fas fa-check text-primary-foreground text-xs hidden peer-checked:block"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-secondary-foreground">Nifty 50 List</div>
+                                <div class="text-xs text-muted-foreground">ind_nifty50list.csv</div>
+                            </div>
+                        </label>
+                        
+                        <label class="relative flex items-center p-4 bg-secondary rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors">
+                            <input type="checkbox" data-bind="sources.indices" class="sr-only peer" checked>
+                            <div class="w-5 h-5 bg-white border-2 border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center">
+                                <i class="fas fa-check text-primary-foreground text-xs hidden peer-checked:block"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-secondary-foreground">Indices Data</div>
+                                <div class="text-xs text-muted-foreground">ind_close_all_*.csv</div>
+                            </div>
+                        </label>
+                        
+                        <label class="relative flex items-center p-4 bg-secondary rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors">
+                            <input type="checkbox" data-bind="sources.stocks" class="sr-only peer" checked>
+                            <div class="w-5 h-5 bg-white border-2 border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center">
+                                <i class="fas fa-check text-primary-foreground text-xs hidden peer-checked:block"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-secondary-foreground">Stocks Data</div>
+                                <div class="text-xs text-muted-foreground">sec_bhavdata_full_*.csv</div>
+                            </div>
+                        </label>
+                        
+                        <label class="relative flex items-center p-4 bg-secondary rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors">
+                            <input type="checkbox" data-bind="sources.marketActivity" class="sr-only peer">
+                            <div class="w-5 h-5 bg-white border-2 border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center">
+                                <i class="fas fa-check text-primary-foreground text-xs hidden peer-checked:block"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-secondary-foreground">Market Activity</div>
+                                <div class="text-xs text-muted-foreground">MA*.csv</div>
+                            </div>
+                        </label>
+                        
+                        <label class="relative flex items-center p-4 bg-secondary rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors">
+                            <input type="checkbox" data-bind="sources.options" class="sr-only peer">
+                            <div class="w-5 h-5 bg-white border-2 border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center">
+                                <i class="fas fa-check text-primary-foreground text-xs hidden peer-checked:block"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-secondary-foreground">Options Data</div>
+                                <div class="text-xs text-muted-foreground">op*.csv (from ZIP)</div>
+                            </div>
+                        </label>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <!-- Download Configuration -->
+                <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-cog text-primary"></i>
+                        <h2 class="text-lg font-semibold text-card-foreground">Download Configuration</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <label class="block">
+                                <span class="text-sm font-medium text-muted-foreground">Download Path</span>
+                                <div class="mt-1 relative">
+                                    <input 
+                                        type="text" 
+                                        data-bind="downloadPath"
+                                        value="~/Desktop/NSE-Data/data"
+                                        class="w-full px-4 py-3 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                                        readonly
+                                    />
+                                    <button data-event="click:selectPath" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fas fa-folder text-muted-foreground hover:text-primary transition-colors"></i>
+                                    </button>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <label class="block">
+                                <span class="text-sm font-medium text-muted-foreground">Concurrent Downloads</span>
+                                <select data-bind="concurrentDownloads" class="mt-1 w-full px-4 py-3 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                                    <option value="3">3 (Recommended)</option>
+                                    <option value="5">5 (Fast)</option>
+                                    <option value="1">1 (Conservative)</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                        <button 
+                            data-event="click:startDownload"
+                            data-implementation="Should validate dates and sources before starting download"
+                            class="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                        >
+                            <i class="fas fa-download mr-2"></i>
+                            Start Download
+                        </button>
+                        <button 
+                            data-event="click:scheduleDownload"
+                            class="flex-1 bg-secondary text-secondary-foreground px-6 py-3 rounded-md font-medium hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                        >
+                            <i class="fas fa-clock mr-2"></i>
+                            Schedule Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: DateSelectionPanel -->
+
+            <!-- @COMPONENT: StatusPanel [Download status and file management] -->
+            <div class="space-y-6">
+                <!-- Download Queue -->
+                <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-list text-primary"></i>
+                            <h2 class="text-lg font-semibold text-card-foreground">Download Queue</h2>
+                        </div>
+                        <span class="text-sm text-muted-foreground">
+                            <span data-bind="queue.completed">0</span> / <span data-bind="queue.total">0</span>
+                        </span>
+                    </div>
+                    
+                    <!-- @STATE: downloadQueue:Array = [] -->
+                    <div class="space-y-3" data-mock="true">
+                        <!-- Active Download -->
+                        <div class="download-item bg-secondary rounded-lg p-4 border-l-4 border-l-primary">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                                    <span class="text-sm font-medium text-secondary-foreground">Indices Data - 15/03/2024</span>
+                                </div>
+                                <span class="text-xs text-muted-foreground">Downloading...</span>
+                            </div>
+                            <div class="w-full bg-border rounded-full h-2">
+                                <div class="progress-bar bg-primary h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <div class="flex justify-between mt-1 text-xs text-muted-foreground">
+                                <span>65% complete</span>
+                                <span>2.1 MB / 3.2 MB</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Queued Download -->
+                        <div class="download-item bg-muted rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-muted-foreground rounded-full"></div>
+                                    <span class="text-sm font-medium text-muted-foreground">Stocks Data - 15/03/2024</span>
+                                </div>
+                                <span class="text-xs text-muted-foreground">Queued</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Completed Download -->
+                        <div class="download-item bg-accent/10 rounded-lg p-4 border-l-4 border-l-accent">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-check-circle text-accent text-sm"></i>
+                                    <span class="text-sm font-medium text-accent-foreground">Nifty 50 List</span>
+                                </div>
+                                <span class="text-xs text-muted-foreground">Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-border">
+                        <button 
+                            data-event="click:clearCompleted"
+                            class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            <i class="fas fa-trash mr-1"></i>
+                            Clear Completed
+                        </button>
+                    </div>
+                </div>
+
+                <!-- File Organization -->
+                <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-folder-tree text-primary"></i>
+                        <h2 class="text-lg font-semibold text-card-foreground">File Organization</h2>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2 text-muted-foreground">
+                            <i class="fas fa-folder text-primary"></i>
+                            <span>NSE-Data/data/</span>
+                        </div>
+                        <div class="ml-4 space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-folder text-yellow-500"></i>
+                                <span class="text-foreground">broad/</span>
+                                <span class="text-xs text-muted-foreground">(Nifty 50 List)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-folder text-blue-500"></i>
+                                <span class="text-foreground">indices/</span>
+                                <span class="text-xs text-muted-foreground">(Index Data)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-folder text-green-500"></i>
+                                <span class="text-foreground">stock/</span>
+                                <span class="text-xs text-muted-foreground">(Stock Data)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-folder text-purple-500"></i>
+                                <span class="text-foreground">ma/</span>
+                                <span class="text-xs text-muted-foreground">(Market Activity)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-folder text-red-500"></i>
+                                <span class="text-foreground">option/</span>
+                                <span class="text-xs text-muted-foreground">(Options Data)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-border">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-muted-foreground">Total Files:</span>
+                            <span class="font-medium text-foreground" data-bind="stats.totalFiles">127</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm mt-1">
+                            <span class="text-muted-foreground">Total Size:</span>
+                            <span class="font-medium text-foreground" data-bind="stats.totalSize">45.2 MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-server text-primary"></i>
+                        <h2 class="text-lg font-semibold text-card-foreground">System Status</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-secondary rounded-lg">
+                            <div class="text-2xl font-bold text-accent" data-bind="stats.activeUsers">1,247</div>
+                            <div class="text-xs text-muted-foreground">Active Users</div>
+                        </div>
+                        <div class="text-center p-3 bg-secondary rounded-lg">
+                            <div class="text-2xl font-bold text-primary" data-bind="stats.downloadSpeed">8.5 MB/s</div>
+                            <div class="text-xs text-muted-foreground">Avg Speed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-muted-foreground">Server Load:</span>
+                            <span class="text-accent font-medium">Normal</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-muted-foreground">API Status:</span>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                <span class="text-accent font-medium">Operational</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: StatusPanel -->
+        </div>
+
+        <!-- @COMPONENT: RecentDownloads [Recent downloads history] -->
+        <div class="mt-8">
+            <div class="bg-card rounded-lg border border-border shadow-sm">
+                <div class="p-6 border-b border-border">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-history text-primary"></i>
+                            <h2 class="text-lg font-semibold text-card-foreground">Recent Downloads</h2>
+                        </div>
+                        <button 
+                            data-event="click:clearHistory"
+                            class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            Clear History
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-border">
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Data Type</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Size</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border" data-mock="true">
+                                <!-- @MAP: recentDownloads.map(download => ( -->
+                                <tr class="hover:bg-muted/50 transition-colors">
+                                    <td class="py-3 px-4 text-sm text-foreground">15/03/2024</td>
+                                    <td class="py-3 px-4 text-sm text-foreground">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fas fa-file-csv text-primary"></i>
+                                            <span>Indices Data</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-muted-foreground">3.2 MB</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Completed
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <button data-event="click:openFile" class="text-primary hover:text-primary/80 transition-colors">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </button>
+                                            <button data-event="click:redownload" class="text-muted-foreground hover:text-foreground transition-colors">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-muted/50 transition-colors">
+                                    <td class="py-3 px-4 text-sm text-foreground">14/03/2024</td>
+                                    <td class="py-3 px-4 text-sm text-foreground">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fas fa-file-csv text-primary"></i>
+                                            <span>Stocks Data</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-muted-foreground">12.8 MB</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Completed
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <button data-event="click:openFile" class="text-primary hover:text-primary/80 transition-colors">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </button>
+                                            <button data-event="click:redownload" class="text-muted-foreground hover:text-foreground transition-colors">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-muted/50 transition-colors">
+                                    <td class="py-3 px-4 text-sm text-foreground">13/03/2024</td>
+                                    <td class="py-3 px-4 text-sm text-foreground">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fas fa-file-archive text-primary"></i>
+                                            <span>Options Data</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-muted-foreground">8.5 MB</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                            Failed
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <button data-event="click:retry" class="text-destructive hover:text-destructive/80 transition-colors">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                            <button data-event="click:viewError" class="text-muted-foreground hover:text-foreground transition-colors">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: RecentDownloads -->
+
+        <!-- @COMPONENT: QuickActions [Quick action buttons] -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button 
+                data-event="click:downloadToday"
+                class="bg-card border border-border rounded-lg p-6 text-left hover:bg-muted/50 transition-colors group"
+            >
+                <div class="flex items-center space-x-3">
+                    <div class="bg-primary/10 text-primary p-3 rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-card-foreground">Download Today's Data</h3>
+                        <p class="text-sm text-muted-foreground mt-1">Get all available data for today</p>
+                    </div>
+                </div>
+            </button>
+            
+            <button 
+                data-event="click:downloadWeek"
+                class="bg-card border border-border rounded-lg p-6 text-left hover:bg-muted/50 transition-colors group"
+            >
+                <div class="flex items-center space-x-3">
+                    <div class="bg-accent/10 text-accent p-3 rounded-lg group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-card-foreground">Download This Week</h3>
+                        <p class="text-sm text-muted-foreground mt-1">Get all data for current week</p>
+                    </div>
+                </div>
+            </button>
+            
+            <button 
+                data-event="click:openSettings"
+                class="bg-card border border-border rounded-lg p-6 text-left hover:bg-muted/50 transition-colors group"
+            >
+                <div class="flex items-center space-x-3">
+                    <div class="bg-secondary text-secondary-foreground p-3 rounded-lg group-hover:bg-muted-foreground group-hover:text-background transition-colors">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-card-foreground">Settings</h3>
+                        <p class="text-sm text-muted-foreground mt-1">Configure download preferences</p>
+                    </div>
+                </div>
+            </button>
+        </div>
+        <!-- @END_COMPONENT: QuickActions -->
+    </main>
+
+    <!-- @COMPONENT: NotificationToast [Success/Error notifications] -->
+    <div class="fixed bottom-4 right-4 space-y-2 z-50" data-mock="true">
+        <!-- Success Notification -->
+        <div class="bg-accent text-accent-foreground p-4 rounded-lg shadow-lg border border-border max-w-sm fade-in">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-check-circle"></i>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">Download Complete</p>
+                    <p class="text-xs opacity-90">Indices data saved successfully</p>
+                </div>
+                <button data-event="click:dismissToast" class="text-accent-foreground/60 hover:text-accent-foreground">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: NotificationToast -->
+
+    <!-- @COMPONENT: LoadingOverlay [Global loading state] -->
+    <div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 hidden" data-bind="isLoading" data-implementation="Show when bulk operations are running">
+        <div class="flex items-center justify-center h-full">
+            <div class="bg-card rounded-lg border border-border p-8 shadow-lg max-w-md w-full mx-4">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+                        <i class="fas fa-download text-primary text-2xl animate-pulse"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground mb-2">Processing Downloads</h3>
+                    <p class="text-sm text-muted-foreground mb-4">Please wait while we fetch your data...</p>
+                    
+                    <div class="w-full bg-border rounded-full h-2 mb-2">
+                        <div class="progress-bar bg-primary h-2 rounded-full" style="width: 40%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-muted-foreground">
+                        <span>Processing...</span>
+                        <span data-bind="progress.percentage">40%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoadingOverlay -->
+
+    <script>
+        // TODO: Implement React Query for data fetching and caching
+        // TODO: Implement TypeScript interfaces for all data structures
+        // TODO: Implement file download and organization logic
+        // TODO: Implement progress tracking and error handling
+        // TODO: Implement WebWorkers for concurrent downloads to handle billions of users
+        
+        (function() {
+            'use strict';
+            
+            // Mock data for demonstration
+            const mockData = {
+                downloadQueue: [],
+                recentDownloads: [],
+                systemStats: {
+                    activeUsers: 1247,
+                    downloadSpeed: '8.5 MB/s',
+                    totalFiles: 127,
+                    totalSize: '45.2 MB'
+                }
+            };
+            
+            // Date validation
+            function validateDateRange() {
+                // TODO: Implement date range validation
+                console.log('Validating date range...');
+            }
+            
+            // Download queue management
+            function addToQueue(dataType, date) {
+                // TODO: Implement queue management with React Query
+                console.log(`Adding ${dataType} for ${date} to queue`);
+            }
+            
+            // Progress tracking
+            function updateProgress(downloadId, progress) {
+                // TODO: Implement real-time progress updates
+                console.log(`Progress for ${downloadId}: ${progress}%`);
+            }
+            
+            // File organization
+            function organizeFiles(dataType, files) {
+                // TODO: Implement file organization based on data type
+                const folderMap = {
+                    'nifty50': 'broad',
+                    'indices': 'indices', 
+                    'stocks': 'stock',
+                    'marketActivity': 'ma',
+                    'options': 'option'
+                };
+                console.log(`Organizing ${dataType} files to ${folderMap[dataType]} folder`);
+            }
+            
+            // Error handling
+            function handleDownloadError(error, downloadId) {
+                // TODO: Implement comprehensive error handling
+                console.error(`Download error for ${downloadId}:`, error);
+            }
+            
+            // ZIP file extraction (for options data)
+            function extractOptionsFile(zipFile) {
+                // TODO: Implement ZIP extraction to get op[ddmmyyyy].csv file
+                console.log('Extracting options file from ZIP...');
+            }
+            
+            console.log('NSE Data Downloader initialized');
+        })();
+    </script>
+</body>
+</html>

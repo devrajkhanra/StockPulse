@@ -12,14 +12,13 @@ export default function Landing() {
             NSE Data Downloader
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto">
-            Professional financial data management for National Stock Exchange (NSE) data files. 
+            Professional financial data management for National Stock Exchange (NSE) data files.
             Download, organize, and manage NSE data with ease.
           </p>
           <Button
-            onClick={() => window.location.href = "/api/login"}
             size="lg"
             className="text-lg px-8 py-3"
-            data-testid="button-login"
+            onClick={() => window.location.href = "/home"}
           >
             Get Started
           </Button>
@@ -63,6 +62,7 @@ export default function Landing() {
             </CardContent>
           </Card>
 
+          {/*
           <Card className="text-center">
             <CardHeader>
               <ShieldIcon className="h-12 w-12 text-orange-600 mx-auto mb-4" />
@@ -74,6 +74,7 @@ export default function Landing() {
               </CardDescription>
             </CardContent>
           </Card>
+          */}
         </div>
 
         {/* Data Sources */}
