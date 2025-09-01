@@ -12,11 +12,11 @@ export default function DownloadQueue() {
     refetchInterval: 2000, // Refresh every 2 seconds for real-time updates
   });
 
-  const activeJobs = jobs.filter((job: any) => 
+  const activeJobs = jobs.filter((job: any) =>
     job.status === 'pending' || job.status === 'running'
   );
 
-  const completedJobs = jobs.filter((job: any) => 
+  const completedJobs = jobs.filter((job: any) =>
     job.status === 'completed'
   );
 
@@ -36,7 +36,7 @@ export default function DownloadQueue() {
 
     const primarySource = job.dataSources?.[0];
     const sourceName = typeMap[primarySource] || 'Data';
-    
+
     if (job.jobType === 'single') {
       return `${sourceName} - ${job.startDate}`;
     } else {
@@ -54,8 +54,7 @@ export default function DownloadQueue() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2 text-base font-sans">
-            <List className="text-primary h-4 w-4" />
-            <span>Download Queue</span>
+            <List className="text-primary h-4 w-4" aria-label="Download Queue" />
           </CardTitle>
           <div className="flex items-center space-x-2">
             {activeJobs.length > 0 && (
@@ -87,8 +86,8 @@ export default function DownloadQueue() {
                   key={job.id}
                   className={cn(
                     "download-item rounded-lg p-3 border-l-4 transition-all duration-200",
-                    job.status === 'running' 
-                      ? "bg-secondary/50 border-l-primary downloading-pulse" 
+                    job.status === 'running'
+                      ? "bg-secondary/50 border-l-primary downloading-pulse"
                       : "bg-muted/50 border-l-muted-foreground"
                   )}
                   data-testid={`download-item-${job.id}`}
@@ -119,9 +118,9 @@ export default function DownloadQueue() {
                   </div>
                   {job.status === 'running' && (
                     <>
-                      <Progress 
-                        value={job.progress || 0} 
-                        className="mb-2 h-2 progress-shimmer" 
+                      <Progress
+                        value={job.progress || 0}
+                        className="mb-2 h-2 progress-shimmer"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span className="font-medium download-counter">{job.progress || 0}% complete</span>
@@ -158,7 +157,7 @@ export default function DownloadQueue() {
             </>
           )}
         </div>
-        
+
         {completedJobs.length > 0 && (
           <div className="mt-3 pt-3 border-t border-border">
             <Button
@@ -167,9 +166,10 @@ export default function DownloadQueue() {
               onClick={handleClearCompleted}
               data-testid="button-clear-completed"
               className="text-muted-foreground hover:text-foreground font-sans text-xs"
+              title="Clear Completed"
+              aria-label="Clear Completed"
             >
-              <Trash2 className="mr-1 h-3 w-3" />
-              Clear Completed
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         )}
