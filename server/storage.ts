@@ -1,11 +1,11 @@
-import { type User, type InsertUser, type DownloadJob, type InsertDownloadJob, type DownloadedFile, type InsertDownloadedFile, type SystemStats } from "@shared/schema";
+import { type User, type UpsertUser, type DownloadJob, type InsertDownloadJob, type DownloadedFile, type InsertDownloadedFile, type SystemStats } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
   // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
 
   // Download job operations
   createDownloadJob(job: InsertDownloadJob): Promise<DownloadJob>;
@@ -48,17 +48,30 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(userData.id || '');
+    
+    if (existingUser) {
+      // Update existing user
+      const updatedUser: User = {
+        ...existingUser,
+        ...userData,
+        updatedAt: new Date(),
+      };
+      this.users.set(existingUser.id, updatedUser);
+      return updatedUser;
+    } else {
+      // Create new user
+      const id = userData.id || randomUUID();
+      const user: User = {
+        ...userData,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.users.set(id, user);
+      return user;
+    }
   }
 
   async createDownloadJob(insertJob: InsertDownloadJob): Promise<DownloadJob> {

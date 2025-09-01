@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Database, Settings } from "lucide-react";
+import { Calendar, Database, Settings, FolderOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDateForInput, formatDateForDisplay, validateDateRange } from "@/lib/date-utils";
 import { DATA_SOURCE_CONFIG, type InsertDownloadJob } from "@shared/schema";
+import { DatePicker, DateRangePicker } from "@/components/ui/date-picker";
 
 const dataSourceOptions = [
   { id: 'nifty50', label: 'Nifty 50 List', file: 'ind_nifty50list.csv' },
@@ -21,12 +22,12 @@ const dataSourceOptions = [
 ];
 
 export default function DateSelectionPanel() {
-  const [selectedDate, setSelectedDate] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [selectedSources, setSelectedSources] = useState<string[]>(['nifty50', 'indices', 'stocks']);
   const [concurrentDownloads, setConcurrentDownloads] = useState('3');
-  const [downloadPath] = useState('~/Desktop/NSE-Data/data');
+  const [downloadPath, setDownloadPath] = useState('~/Desktop/NSE-Data/data');
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -45,9 +46,9 @@ export default function DateSelectionPanel() {
       queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
       
       // Reset form
-      setSelectedDate('');
-      setStartDate('');
-      setEndDate('');
+      setSelectedDate(undefined);
+      setStartDate(undefined);
+      setEndDate(undefined);
     },
     onError: (error: any) => {
       toast({
@@ -72,7 +73,7 @@ export default function DateSelectionPanel() {
 
     if (selectedDate) {
       // Single date download
-      const formattedDate = formatDateForDisplay(selectedDate);
+      const formattedDate = selectedDate.toLocaleDateString('en-GB'); // DD/MM/YYYY format
       jobData = {
         jobType: 'single',
         startDate: formattedDate,
@@ -80,8 +81,8 @@ export default function DateSelectionPanel() {
       };
     } else if (startDate && endDate) {
       // Date range download
-      const formattedStart = formatDateForDisplay(startDate);
-      const formattedEnd = formatDateForDisplay(endDate);
+      const formattedStart = startDate.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+      const formattedEnd = endDate.toLocaleDateString('en-GB'); // DD/MM/YYYY format
       
       const validation = validateDateRange(formattedStart, formattedEnd);
       if (!validation.isValid) {
@@ -134,54 +135,39 @@ export default function DateSelectionPanel() {
             {/* Single Date Selection */}
             <div className="space-y-3">
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide font-sans">Single Date</h3>
-              <div className="relative">
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => {
-                    setSelectedDate(e.target.value);
-                    if (e.target.value) {
-                      setStartDate('');
-                      setEndDate('');
-                    }
-                  }}
-                  data-testid="input-single-date"
-                  className="w-full font-sans"
-                />
-              </div>
+              <DatePicker
+                date={selectedDate}
+                onDateChange={(date) => {
+                  setSelectedDate(date);
+                  if (date) {
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                  }
+                }}
+                placeholder="Select a date"
+                className="w-full"
+              />
             </div>
             
             {/* Date Range Selection */}
             <div className="space-y-3">
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide font-sans">Date Range</h3>
-              <div className="space-y-2">
-                <Input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
-                    if (e.target.value) {
-                      setSelectedDate('');
-                    }
-                  }}
-                  data-testid="input-start-date"
-                  placeholder="Start date"
-                  className="font-sans"
-                />
-                <Input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
-                    if (e.target.value) {
-                      setSelectedDate('');
-                    }
-                  }}
-                  data-testid="input-end-date"
-                  placeholder="End date"
-                  className="font-sans"
-                />
-              </div>
+              <DateRangePicker
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={(date) => {
+                  setStartDate(date);
+                  if (date) {
+                    setSelectedDate(undefined);
+                  }
+                }}
+                onEndDateChange={(date) => {
+                  setEndDate(date);
+                  if (date) {
+                    setSelectedDate(undefined);
+                  }
+                }}
+              />
             </div>
           </div>
         </CardContent>
@@ -232,13 +218,30 @@ export default function DateSelectionPanel() {
               <Label htmlFor="download-path" className="text-xs font-medium text-muted-foreground font-sans">
                 Download Path
               </Label>
-              <Input
-                id="download-path"
-                value={downloadPath}
-                readOnly
-                className="bg-muted/50 font-mono text-xs"
-                data-testid="input-download-path"
-              />
+              <div className="flex space-x-2">
+                <Input
+                  id="download-path"
+                  value={downloadPath}
+                  onChange={(e) => setDownloadPath(e.target.value)}
+                  className="bg-background font-mono text-xs flex-1"
+                  data-testid="input-download-path"
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    // In a real app, this would open a file browser
+                    toast({
+                      title: "File Browser",
+                      description: "File browser integration coming soon!",
+                    });
+                  }}
+                  data-testid="button-browse-path"
+                  className="px-3"
+                >
+                  <FolderOpen className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
             
             <div className="space-y-2">

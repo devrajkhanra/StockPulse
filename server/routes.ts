@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertDownloadJobSchema, DATA_SOURCE_CONFIG } from "@shared/schema";
 import { z } from "zod";
 import axios from "axios";
@@ -58,6 +59,21 @@ async function extractOptionsFile(zipFilePath: string, targetDir: string, date: 
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Get system stats
   app.get("/api/stats", async (req, res) => {
     try {
@@ -69,9 +85,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get download jobs
-  app.get("/api/download-jobs", async (req, res) => {
+  app.get("/api/download-jobs", isAuthenticated, async (req: any, res) => {
     try {
-      const jobs = await storage.getUserDownloadJobs();
+      const userId = req.user?.claims?.sub;
+      const jobs = await storage.getUserDownloadJobs(userId);
       res.json(jobs);
     } catch (error) {
       res.status(500).json({ message: "Failed to get download jobs" });
@@ -90,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create download job
-  app.post("/api/download-jobs", async (req, res) => {
+  app.post("/api/download-jobs", isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertDownloadJobSchema.parse(req.body);
       
@@ -116,9 +133,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalFiles -= dates.length - 1; // Nifty50 is downloaded only once
       }
 
+      const userId = req.user?.claims?.sub;
       const job = await storage.createDownloadJob({
         ...validatedData,
         totalFiles,
+        userId,
       });
 
       // Start download process asynchronously
@@ -135,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get specific download job
-  app.get("/api/download-jobs/:id", async (req, res) => {
+  app.get("/api/download-jobs/:id", isAuthenticated, async (req: any, res) => {
     try {
       const job = await storage.getDownloadJob(req.params.id);
       if (!job) {
