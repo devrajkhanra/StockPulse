@@ -2,9 +2,7 @@ import { History, ExternalLink, RotateCcw, Info, CheckCircle, AlertCircle, Clock
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-// Tailwind utilities removed
 
 export default function RecentDownloadsTable() {
   const { data: files = [] } = useQuery<any[]>({
@@ -31,184 +29,96 @@ export default function RecentDownloadsTable() {
 
   const getFileTypeName = (fileType: string) => {
     const nameMap: { [key: string]: string } = {
-      'nifty50': 'Nifty 50 List',
-      'indices': 'Indices Data',
-      'stocks': 'Stocks Data',
+      'nifty50': 'Nifty 50',
+      'indices': 'Indices',
+      'stocks': 'Stocks',
       'marketActivity': 'Market Activity',
-      'options': 'Options Data',
+      'options': 'Options',
     };
     return nameMap[fileType] || fileType;
   };
 
-  const handleOpenFile = (filePath: string) => {
-    console.log('Open file:', filePath);
-  };
-
-  const handleRedownload = (file: any) => {
-    console.log('Redownload file:', file);
-  };
-
-  const handleRetry = (file: any) => {
-    console.log('Retry download:', file);
-  };
-
-  const handleViewError = (file: any) => {
-    console.log('View error for file:', file);
-  };
-
-  const handleClearHistory = () => {
-    console.log('Clear history');
-  };
-
   return (
-    <Card className="interactive-card">
-      <CardHeader className="pb-4">
+    <Card className="border-slate-200/60 shadow-sm">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
-              <History className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <span className="text-lg">Recent Downloads</span>
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <History className="h-4 w-4 text-indigo-600" />
+            Recent Downloads
           </CardTitle>
-
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="font-mono text-xs">
-              {files.length} files
-            </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearHistory}
-              className="text-muted-foreground hover:text-destructive micro-bounce"
-            >
-              Clear History
-            </Button>
-          </div>
+          <Badge variant="outline" className="text-xs px-2 py-0.5">
+            {files.length} files
+          </Badge>
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="pt-0">
         {files.length === 0 ? (
-          <div className="text-center py-12 animate-fade-in">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
-              <FileText className="h-8 w-8 text-muted-foreground/50" />
-            </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">No downloads yet</h3>
-            <p className="text-sm text-muted-foreground">
-              Your download history will appear here
-            </p>
+          <div className="text-center py-8">
+            <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-xs text-slate-500">No downloads yet</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border/50">
-            <Table className="data-table">
-              <TableHeader>
-                <TableRow className="hover:bg-transparent border-border/50">
-                  <TableHead className="font-semibold text-foreground">Date</TableHead>
-                  <TableHead className="font-semibold text-foreground">Data Type</TableHead>
-                  <TableHead className="font-semibold text-foreground">Size</TableHead>
-                  <TableHead className="font-semibold text-foreground">Status</TableHead>
-                  <TableHead className="font-semibold text-foreground text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {files.map((file: any, index) => (
-                  <TableRow
-                    key={file.id}
-                    className="recent-download-row"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">{file.downloadDate}</span>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg">{getFileIcon(file.fileType)}</span>
-                        <div>
-                          <div className="font-medium text-foreground text-sm">
-                            {getFileTypeName(file.fileType)}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            {file.fileName}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <span className="font-mono text-sm text-muted-foreground">
-                        {formatFileSize(file.fileSize)}
-                      </span>
-                    </TableCell>
-
-                    <TableCell>
+          <div className="space-y-1">
+            {files.slice(0, 8).map((file: any) => (
+              <div
+                key={file.id}
+                className="group flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className="text-sm">{getFileIcon(file.fileType)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-medium text-slate-900 truncate">
+                        {getFileTypeName(file.fileType)}
+                      </p>
                       <Badge
-                        className={`status-badge ${file.status === 'completed' ? 'completed' : 'failed'}`}
+                        className={`text-xs px-1.5 py-0 ${
+                          file.status === 'completed' 
+                            ? 'bg-emerald-100 text-emerald-700 border-emerald-200' 
+                            : 'bg-red-100 text-red-700 border-red-200'
+                        }`}
                       >
                         {file.status === 'completed' ? (
-                          <>
-                            <CheckCircle className="h-3 w-3" />
-                            Completed
-                          </>
+                          <CheckCircle className="h-2.5 w-2.5 mr-1" />
                         ) : (
-                          <>
-                            <AlertCircle className="h-3 w-3" />
-                            Failed
-                          </>
+                          <AlertCircle className="h-2.5 w-2.5 mr-1" />
                         )}
+                        {file.status}
                       </Badge>
-                    </TableCell>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-slate-500 font-mono">{file.downloadDate}</span>
+                      <span className="text-xs text-slate-400">•</span>
+                      <span className="text-xs text-slate-500">{formatFileSize(file.fileSize)}</span>
+                    </div>
+                  </div>
+                </div>
 
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {file.status === 'completed' ? (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenFile(file.filePath)}
-                              className="micro-bounce h-8 w-8 p-0"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRedownload(file)}
-                              className="micro-bounce h-8 w-8 p-0"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRetry(file)}
-                              className="micro-bounce h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewError(file)}
-                              className="micro-bounce h-8 w-8 p-0"
-                            >
-                              <Info className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {file.status === 'completed' ? (
+                    <>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <RotateCcw className="h-3 w-3" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-600">
+                      <RotateCcw className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            {files.length > 8 && (
+              <div className="text-center pt-2 border-t border-slate-200/60">
+                <p className="text-xs text-slate-500">+{files.length - 8} more files</p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

@@ -17,38 +17,38 @@ import { DatePicker, DateRangePicker } from "@/components/ui/date-picker";
 const dataSourceOptions = [
   {
     id: 'nifty50',
-    label: 'Nifty 50 List',
+    label: 'Nifty 50',
     file: 'ind_nifty50list.csv',
     icon: '📊',
-    description: 'Current list of Nifty 50 stocks'
+    color: 'bg-yellow-100 text-yellow-700 border-yellow-200'
   },
   {
     id: 'indices',
-    label: 'Indices Data',
+    label: 'Indices',
     file: 'ind_close_all_*.csv',
     icon: '📈',
-    description: 'Historical indices closing data'
+    color: 'bg-blue-100 text-blue-700 border-blue-200'
   },
   {
     id: 'stocks',
-    label: 'Stocks Data',
+    label: 'Stocks',
     file: 'sec_bhavdata_full_*.csv',
     icon: '🏢',
-    description: 'Daily stock market data'
+    color: 'bg-green-100 text-green-700 border-green-200'
   },
   {
     id: 'marketActivity',
     label: 'Market Activity',
     file: 'MA*.csv',
     icon: '📊',
-    description: 'Market activity reports'
+    color: 'bg-purple-100 text-purple-700 border-purple-200'
   },
   {
     id: 'options',
-    label: 'Options Data',
-    file: 'op*.csv (from ZIP)',
+    label: 'Options',
+    file: 'op*.csv',
     icon: '⚡',
-    description: 'F&O market data'
+    color: 'bg-red-100 text-red-700 border-red-200'
   },
 ];
 
@@ -58,7 +58,6 @@ export default function DateSelectionPanel() {
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [selectedSources, setSelectedSources] = useState<string[]>(['nifty50', 'indices', 'stocks']);
   const [concurrentDownloads, setConcurrentDownloads] = useState('3');
-  const [downloadPath, setDownloadPath] = useState('~/Desktop/NSE-Data/data');
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -76,7 +75,6 @@ export default function DateSelectionPanel() {
       queryClient.invalidateQueries({ queryKey: ['/api/download-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
 
-      // Reset form with animation
       setSelectedDate(undefined);
       setStartDate(undefined);
       setEndDate(undefined);
@@ -149,39 +147,23 @@ export default function DateSelectionPanel() {
     }
   };
 
-  const handleQuickSelect = (preset: string) => {
-    switch (preset) {
-      case 'all':
-        setSelectedSources(['nifty50', 'indices', 'stocks', 'marketActivity', 'options']);
-        break;
-      case 'essential':
-        setSelectedSources(['nifty50', 'indices', 'stocks']);
-        break;
-      case 'none':
-        setSelectedSources([]);
-        break;
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Date Selection Card */}
-      <Card className="interactive-card animate-fade-in">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Calendar className="h-4 w-4 text-primary" />
-            </div>
-            <span className="text-lg">Date Selection</span>
+    <div className="space-y-4">
+      {/* Ultra-Compact Date Selection */}
+      <Card className="border-slate-200/60 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Calendar className="h-4 w-4 text-indigo-600" />
+            Date Selection
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Single Date Selection */}
-            <div className="space-y-4">
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {/* Single Date */}
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-foreground">Single Date</h3>
-                <Badge variant="outline" className="text-xs">Quick</Badge>
+                <Label className="text-xs font-medium text-slate-600">Single Date</Label>
+                <Badge variant="outline" className="text-xs px-1.5 py-0">Quick</Badge>
               </div>
               <DatePicker
                 date={selectedDate}
@@ -192,113 +174,88 @@ export default function DateSelectionPanel() {
                     setEndDate(undefined);
                   }
                 }}
-                placeholder="Select a specific date"
-                className="w-full form-control"
+                placeholder="Select date"
+                className="h-8 text-xs"
               />
             </div>
 
-            {/* Date Range Selection */}
-            <div className="space-y-4">
+            {/* Date Range */}
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-foreground">Date Range</h3>
-                <Badge variant="outline" className="text-xs">Bulk</Badge>
+                <Label className="text-xs font-medium text-slate-600">Date Range</Label>
+                <Badge variant="outline" className="text-xs px-1.5 py-0">Bulk</Badge>
               </div>
               <DateRangePicker
                 startDate={startDate}
                 endDate={endDate}
                 onStartDateChange={(date) => {
                   setStartDate(date);
-                  if (date) {
-                    setSelectedDate(undefined);
-                  }
+                  if (date) setSelectedDate(undefined);
                 }}
                 onEndDateChange={(date) => {
                   setEndDate(date);
-                  if (date) {
-                    setSelectedDate(undefined);
-                  }
+                  if (date) setSelectedDate(undefined);
                 }}
+                className="grid grid-cols-2 gap-2"
               />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Data Source Selection Card */}
-      <Card className="interactive-card animate-slide-up" style={{ animationDelay: '100ms' }}>
-        <CardHeader className="pb-4">
+      {/* Ultra-Compact Data Sources */}
+      <Card className="border-slate-200/60 shadow-sm">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <Database className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <span className="text-lg">Data Sources</span>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Database className="h-4 w-4 text-emerald-600" />
+              Data Sources
             </CardTitle>
-
-            {/* Quick Select Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex gap-1">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleQuickSelect('essential')}
-                className="text-xs micro-bounce"
+                onClick={() => setSelectedSources(['nifty50', 'indices', 'stocks'])}
+                className="h-6 px-2 text-xs"
               >
                 Essential
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleQuickSelect('all')}
-                className="text-xs micro-bounce"
+                onClick={() => setSelectedSources(['nifty50', 'indices', 'stocks', 'marketActivity', 'options'])}
+                className="h-6 px-2 text-xs"
               >
                 All
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickSelect('none')}
-                className="text-xs micro-bounce"
-              >
-                None
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 stagger-children">
-            {dataSourceOptions.map((source, index) => (
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {dataSourceOptions.map((source) => (
               <label
                 key={source.id}
-                className="group relative flex cursor-pointer rounded-xl border border-border/50 p-4 transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="group relative flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200/60 p-2 transition-all hover:border-indigo-300 hover:bg-indigo-50/50"
               >
-                <div className="flex items-start gap-3 w-full">
-                  <Checkbox
-                    checked={selectedSources.includes(source.id)}
-                    onCheckedChange={(checked) => handleSourceToggle(source.id, !!checked)}
-                    className="mt-0.5 checkbox-enhanced"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{source.icon}</span>
-                      <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        {source.label}
-                      </h4>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-2 leading-relaxed">
-                      {source.description}
-                    </p>
-                    <code className="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                      {source.file}
-                    </code>
+                <Checkbox
+                  checked={selectedSources.includes(source.id)}
+                  onCheckedChange={(checked) => handleSourceToggle(source.id, !!checked)}
+                  className="h-3.5 w-3.5"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">{source.icon}</span>
+                    <span className="text-xs font-medium text-slate-900 truncate">
+                      {source.label}
+                    </span>
                   </div>
+                  <p className="text-xs text-slate-500 font-mono truncate">
+                    {source.file}
+                  </p>
                 </div>
-
-                {/* Selection indicator */}
                 {selectedSources.includes(source.id) && (
-                  <div className="absolute top-2 right-2">
-                    <div className="h-2 w-2 rounded-full bg-primary animate-bounce-subtle" />
-                  </div>
+                  <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
                 )}
               </label>
             ))}
@@ -306,109 +263,67 @@ export default function DateSelectionPanel() {
         </CardContent>
       </Card>
 
-      {/* Download Configuration */}
-      <Card className="interactive-card animate-slide-up" style={{ animationDelay: '200ms' }}>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-              <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-lg">Configuration</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Download Path */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-foreground">
-                Download Directory
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  value={downloadPath}
-                  onChange={(e) => setDownloadPath(e.target.value)}
-                  className="form-control font-mono text-sm flex-1"
-                  placeholder="Enter download path"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    toast({
-                      title: "📁 File Browser",
-                      description: "File browser integration coming soon!",
-                    });
-                  }}
-                  className="micro-bounce px-3"
-                >
-                  <FolderOpen className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
+      {/* Ultra-Compact Configuration & Actions */}
+      <Card className="border-slate-200/60 shadow-sm">
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
             {/* Concurrent Downloads */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-foreground">
-                Concurrent Downloads
-              </Label>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium text-slate-600">Concurrency</Label>
               <Select value={concurrentDownloads} onValueChange={setConcurrentDownloads}>
-                <SelectTrigger className="form-control">
+                <SelectTrigger className="h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="dropdown-content">
-                  <SelectItem value="1">1 (Conservative)</SelectItem>
+                <SelectContent>
+                  <SelectItem value="1">1 (Safe)</SelectItem>
                   <SelectItem value="3">3 (Recommended)</SelectItem>
                   <SelectItem value="5">5 (Fast)</SelectItem>
-                  <SelectItem value="8">8 (Maximum)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Action Buttons */}
+            <div className="lg:col-span-2 flex gap-2">
+              <Button
+                onClick={handleStartDownload}
+                disabled={createJobMutation.isPending}
+                className="flex-1 h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              >
+                {createJobMutation.isPending ? (
+                  <>
+                    <div className="h-3 w-3 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Starting...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                    Start Download
+                  </>
+                )}
+              </Button>
+
+              <Button variant="outline" className="h-8 px-3 text-xs">
+                <Clock className="mr-1.5 h-3.5 w-3.5" />
+                Schedule
+              </Button>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleStartDownload}
-              disabled={createJobMutation.isPending}
-              className="btn-primary flex-1 h-12"
-            >
-              {createJobMutation.isPending ? (
-                <div className="loading-dots mr-2">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              {createJobMutation.isPending ? 'Starting Download...' : 'Start Download'}
-            </Button>
-
-            <Button
-              variant="outline"
-              className="flex-1 h-12 micro-lift"
-            >
-              <Clock className="mr-2 h-4 w-4" />
-              Schedule Download
-            </Button>
-          </div>
-
-          {/* Selection Summary */}
+          {/* Compact Selection Summary */}
           {selectedSources.length > 0 && (
-            <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/50 animate-fade-in">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Selected Sources</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {selectedSources.map(sourceId => {
-                  const source = dataSourceOptions.find(s => s.id === sourceId);
-                  return source ? (
-                    <Badge key={sourceId} variant="secondary" className="text-xs">
-                      {source.icon} {source.label}
-                    </Badge>
-                  ) : null;
-                })}
+            <div className="mt-3 p-2 rounded-md bg-slate-50 border border-slate-200/60">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="font-medium text-slate-700">Selected:</span>
+                <div className="flex flex-wrap gap-1">
+                  {selectedSources.map(sourceId => {
+                    const source = dataSourceOptions.find(s => s.id === sourceId);
+                    return source ? (
+                      <span key={sourceId} className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs border ${source.color}`}>
+                        {source.icon} {source.label}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
               </div>
             </div>
           )}
